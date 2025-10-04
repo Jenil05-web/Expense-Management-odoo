@@ -1,0 +1,229 @@
+/* --- Global Styles & Typography --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4a90e2;
+    /* A nice, friendly blue */
+    --success-color: #50e3c2;
+    /* A modern teal/green */
+    --danger-color: #e94b3c;
+    /* A clear, soft red */
+    --warning-color: #f5a623;
+    /* A warm orange */
+    --info-color: #5a9df9;
+    /* A light, informative blue */
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --text-color: #495057;
+    --border-color: #dee2e6;
+    --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* --- Navigation Bar --- */
+/* Assuming you have a navbar, you can style it here. Example: */
+.navbar {
+    box-shadow: var(--box-shadow);
+    background-color: #fff;
+}
+
+/* --- Dashboard Specific --- */
+.dashboard-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.dashboard-header .lead {
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+/* --- Metric Cards --- */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    /* Ensures content respects border-radius */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-weight: 500;
+    font-size: 1.1rem;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Card Color Variants */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.bg-info {
+    background-color: var(--info-color) !important;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #3a7ac8;
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+}
+
+/* --- Tables --- */
+.table {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    /* Important for border-radius on tables */
+}
+
+.table thead {
+    background-color: var(--light-color);
+}
+
+.table th {
+    border: none;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--dark-color);
+}
+
+.table td {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+    /* A very light grey for hover */
+}
+
+.table .badge {
+    padding: 0.5em 0.9em;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* --- Status Badges (Example) --- */
+.status-approved {
+    background-color: #e6f9f1;
+    color: #28a745;
+}
+
+.status-pending {
+    background-color: #fff8e1;
+    color: #ffc107;
+}
+
+.status-rejected {
+    background-color: #fbeae5;
+    color: #dc3545;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .text-right {
+        text-align: left !important;
+        margin-top: 1rem;
+    }
+}
