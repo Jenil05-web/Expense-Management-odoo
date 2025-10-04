@@ -1,0 +1,174 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">Submit New Expense</h1>
+        <a href="/expenses" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Cancel
+        </a>
+    </div>
+
+    <form action="/expenses/create" method="POST" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Expense Amount & Currency -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Amount *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="amount" name="amount" placeholder="0.00" required step="0.01">
+                                <select class="form-control" id="currency" name="currency" style="max-width: 120px;">
+                                    <!-- This list should ideally be populated from your company settings -->
+                                    <option value="USD" selected>USD</option>
+                                    <option value="INR">INR</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expense Category -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-control" id="category" name="category" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Food">Food & Dining</option>
+                                <option value="Accommodation">Accommodation</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Entertainment">Client Entertainment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date of Expense -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="expenseDate" class="form-label">Date of Expense *</label>
+                            <input type="date" class="form-control" id="expenseDate" name="expenseDate" required value="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                    </div>
+                    
+                    <!-- Merchant -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="merchant" class="form-label">Merchant / Vendor</label>
+                            <input type="text" class="form-control" id="merchant" name="merchant" placeholder="e.g., Uber, Starbucks">
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="e.g., Taxi ride from airport to hotel" required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Receipt Upload -->
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label">Attach Receipt</label>
+                            <div class="file-upload" id="file-drop-area">
+                                <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                <p class="file-upload-text"><strong>Drag & drop a file here</strong> or click to browse</p>
+                                <input type="file" id="receipt" name="receipt" class="file-upload-input" accept="image/*,application/pdf">
+                                <div id="file-name" class="mt-2"></div>
+                            </div>
+                             <small class="form-text text-muted">Accepted formats: JPG, PNG, PDF. Max size: 5MB.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-right">
+                <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                    <i class="fas fa-save me-2"></i> Save as Draft
+                </button>
+                <button type="submit" name="action" value="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i> Submit for Approval
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileDropArea = document.getElementById('file-drop-area');
+        const fileInput = document.getElementById('receipt');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        fileDropArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `File selected: ${fileInput.files[0].name}`;
+            }
+        });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, () => fileDropArea.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, () => fileDropArea.classList.remove('highlight'), false);
+        });
+
+        fileDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            
+            fileInput.files = files;
+             if (files.length > 0) {
+                fileNameDisplay.textContent = `File selected: ${files[0].name}`;
+            }
+        }
+    });
+</script>
+
+<style>
+    .file-upload {
+        border: 2px dashed #e5e7eb;
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .file-upload.highlight,
+    .file-upload:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 15px;
+    }
+    .file-upload-text {
+        color: #6b7280;
+        margin: 0;
+    }
+    .file-upload-input {
+        display: none;
+    }
+</style>
+
+<%- include('../layouts/footer') %>

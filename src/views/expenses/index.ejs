@@ -1,0 +1,90 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">My Expenses</h1>
+        <a href="/expenses/create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> Submit New Expense
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">All Expense Claims</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                             <% if (user.role !== 'employee') { %>
+                                <th>Employee</th>
+                            <% } %>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (expenses && expenses.length > 0) { %>
+                            <% expenses.forEach(expense => { %>
+                                <tr>
+                                    <td><%= moment(expense.expenseDate).format('MMM D, YYYY') %></td>
+                                    <% if (user.role !== 'employee') { %>
+                                        <td><%= expense.user ? expense.user.firstName + ' ' + expense.user.lastName : 'N/A' %></td>
+                                    <% } %>
+                                    <td>
+                                        <span class="badge badge-secondary"><%= expense.category %></span>
+                                    </td>
+                                    <td><%= expense.description.substring(0, 50) %><% if (expense.description.length > 50) { %>...<% } %></td>
+                                    <td class="text-right"><strong><%= expense.amount.toFixed(2) %> <%= expense.currency %></strong></td>
+                                    <td class="text-center">
+                                        <% if (expense.status === 'Approved') { %>
+                                            <span class="badge badge-success">Approved</span>
+                                        <% } else if (expense.status === 'Rejected') { %>
+                                            <span class="badge badge-danger">Rejected</span>
+                                        <% } else if (expense.status === 'PendingApproval' || expense.status === 'Submitted') { %>
+                                            <span class="badge badge-warning">Pending</span>
+                                         <% } else if (expense.status === 'Draft') { %>
+                                            <span class="badge badge-info">Draft</span>
+                                        <% } else { %>
+                                            <span class="badge badge-secondary"><%= expense.status %></span>
+                                        <% } %>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="table-actions">
+                                            <a href="/expenses/<%= expense.id %>" class="btn btn-sm btn-outline-primary btn-icon" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                             <% if (expense.status === 'Draft' || expense.status === 'Rejected') { %>
+                                                <a href="/expenses/<%= expense.id %>/edit" class="btn btn-sm btn-outline-primary btn-icon" title="Edit">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="<%= user.role !== 'employee' ? '7' : '6' %>">
+                                    <div class="empty-state">
+                                        <i class="fas fa-receipt empty-state-icon"></i>
+                                        <h5 class="empty-state-title">No Expenses Found</h5>
+                                        <p class="empty-state-description">Get started by creating your first expense claim.</p>
+                                        <a href="/expenses/create" class="btn btn-primary">Submit a New Expense</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>

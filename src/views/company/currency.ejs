@@ -1,0 +1,77 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">Currency Settings</h1>
+        <a href="/company/settings" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Company Settings
+        </a>
+    </div>
+
+    <form action="/company/currency" method="POST">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Manage Company Currencies</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">Configure the financial settings for your company. The base currency is used for all reporting and analytics.</p>
+                
+                <div class="row">
+                    <!-- Base Currency Selection -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="baseCurrency" class="form-label">
+                                <i class="fas fa-coins me-2"></i>Base Currency
+                            </label>
+                            <p class="form-text">This is the default currency for all financial reporting.</p>
+                            <select class="form-control" id="baseCurrency" name="baseCurrency" required>
+                                <% if (typeof currencies !== 'undefined' && currencies.length) { %>
+                                    <% currencies.forEach(currency => { %>
+                                        <option 
+                                            value="<%= currency.code %>" 
+                                            <%= (company && company.settings.baseCurrency === currency.code) ? 'selected' : '' %>>
+                                            <%= currency.name %> (<%= currency.code %>)
+                                        </option>
+                                    <% }); %>
+                                <% } else { %>
+                                    <option value="<%= company.settings.baseCurrency %>" selected>
+                                        <%= company.settings.baseCurrency %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Allow Multiple Currencies -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-exchange-alt me-2"></i>Allow Multi-Currency Expenses?
+                            </label>
+                            <p class="form-text">Allow employees to submit expenses in currencies other than the base currency.</p>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="allowMultipleCurrencies" id="allowYes" value="true" <%= (company && company.settings.allowMultipleCurrencies) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="allowYes">
+                                    <strong>Yes</strong>, allow other currencies. (Conversion rates will apply)
+                                </label>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="radio" name="allowMultipleCurrencies" id="allowNo" value="false" <%= (company && !company.settings.allowMultipleCurrencies) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="allowNo">
+                                    <strong>No</strong>, restrict all expenses to the base currency.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<%- include('../layouts/footer') %>
