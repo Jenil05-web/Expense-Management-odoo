@@ -1,17 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
-const { isNotAuthenticated } = require('../middleware/auth');
+const passport = require('passport');
 
-// GET routes
-router.get('/login', isNotAuthenticated, authController.getLogin);
-router.get('/signup', isNotAuthenticated, authController.getSignup);
-router.get('/logout', authController.logout);
-router.get('/forgot-password', isNotAuthenticated, authController.getForgotPassword);
+// @desc    Show login page
+// @route   GET /auth/login
+router.get('/login', (req, res) => {
+    res.render('auth/login', { title: 'Login' });
+});
 
-// POST routes
-router.post('/login', isNotAuthenticated, authController.postLogin);
-router.post('/signup', isNotAuthenticated, authController.postSignup);
-router.post('/forgot-password', isNotAuthenticated, authController.postForgotPassword);
+// @desc    Authenticate user
+// @route   POST /auth/login
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/dashboard',
+    failureRedirect: '/auth/login',
+    failureFlash: true
+}));
 
+// @desc    Logout user
+// @route   GET /auth/logout
+router.get('/logout', (req, res, next) => {
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        req.flash('success_msg', 'You are logged out');
+        res.redirect('/auth/login');
+    });
+});
+
+// IMPORTANT: This line exports the router and makes it usable in server.js
 module.exports = router;

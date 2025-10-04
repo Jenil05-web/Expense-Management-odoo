@@ -1,34 +1,52 @@
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/User');
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("../models/User");
 
 module.exports = function (passport) {
-  passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    try {
-      // select('+password') is required because password is omitted by default
-      const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
-      if (!user) return done(null, false, { message: 'Incorrect email or password' });
+  passport.use(
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passwordField: "password",
+      },
+      async (email, password, done) => {
+        try {
+          // Find user by email
+          const user = await User.findOne({
+            email: email.toLowerCase(),
+            isActive: true,
+          }).populate("company");
 
-      const isMatch = await user.comparePassword(password);
-      if (!isMatch) return done(null, false, { message: 'Incorrect email or password' });
+          if (!user) {
+            return done(null, false, { message: "Invalid email or password" });
+          }
 
-      // optionally check user.isActive
-      if (!user.isActive) return done(null, false, { message: 'Account is inactive' });
+          // Check password
+          const isMatch = await user.comparePassword(password);
 
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
-  }));
+          if (!isMatch) {
+            return done(null, false, { message: "Invalid email or password" });
+          }
 
-  passport.serializeUser((user, done) => done(null, user.id));
+          return done(null, user);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
+  passport.serializeUser((user, done) => {
+    done(null, user._id);
+  });
 
   passport.deserializeUser(async (id, done) => {
     try {
-      // don't include password in deserialized user
-      const user = await User.findById(id).populate('company manager');
+      const user = await User.findById(id)
+        .populate("company")
+        .populate("manager", "firstName lastName email");
       done(null, user);
-    } catch (err) {
-      done(err);
+    } catch (error) {
+      done(error, null);
     }
   });
 };
