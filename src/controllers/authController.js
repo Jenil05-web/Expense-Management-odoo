@@ -65,7 +65,6 @@ exports.postSignup = async (req, res) => {
       errors.push({ msg: 'Password must be at least 6 characters' });
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       errors.push({ msg: 'Please enter a valid email address' });
@@ -91,7 +90,6 @@ exports.postSignup = async (req, res) => {
       });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       errors.push({ msg: 'Email is already registered. Please log in.' });
@@ -114,7 +112,6 @@ exports.postSignup = async (req, res) => {
       });
     }
 
-    // Create company
     const company = new Company({
       name: companyName || `${firstName} ${lastName}'s Company`,
       email: companyEmail || email,
@@ -128,11 +125,9 @@ exports.postSignup = async (req, res) => {
 
     await company.save();
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user (Admin for first user in company)
     const newUser = new User({
       firstName,
       lastName,
@@ -147,7 +142,6 @@ exports.postSignup = async (req, res) => {
 
     await newUser.save();
 
-    // Update company with admin user
     company.adminUser = newUser._id;
     await company.save();
 
@@ -161,7 +155,6 @@ exports.postSignup = async (req, res) => {
   }
 };
 
-// GET /auth/forgot-password - Show forgot password page
 exports.getForgotPassword = (req, res) => {
   res.render('auth/forgot-password', {
     layout: 'auth-layout',
@@ -173,7 +166,6 @@ exports.getForgotPassword = (req, res) => {
   });
 };
 
-// POST /auth/forgot-password - Handle forgot password
 exports.postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -190,17 +182,6 @@ exports.postForgotPassword = async (req, res) => {
       return res.redirect('/auth/forgot-password');
     }
 
-    // TODO: Implement email sending with password reset token
-    // Generate reset token
-    // const resetToken = crypto.randomBytes(32).toString('hex');
-    // user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    // user.resetPasswordExpire = Date.now() + 3600000; // 1 hour
-    // await user.save();
-    
-    // Send email with reset link
-    // await emailService.sendPasswordResetEmail(user.email, resetToken);
-
-    // For now, just show a success message
     req.flash('success_msg', 'If an account exists with that email, password reset instructions have been sent');
     res.redirect('/auth/login');
 
@@ -211,7 +192,6 @@ exports.postForgotPassword = async (req, res) => {
   }
 };
 
-// GET /auth/logout - Handle logout
 exports.logout = (req, res, next) => {
   req.logout((err) => {
     if (err) {
@@ -229,7 +209,6 @@ exports.logout = (req, res, next) => {
   });
 };
 
-// API endpoint to check authentication status
 exports.checkAuth = (req, res) => {
   if (req.isAuthenticated()) {
     res.json({

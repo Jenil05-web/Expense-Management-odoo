@@ -4,7 +4,7 @@ const Expense = require('../models/Expense');
 exports.getExpenses = async (req, res) => {
     try {
         const query = { company: req.user.company };
-        
+
         if (req.user.role === 'employee') {
             query.user = req.user._id;
         }
@@ -15,8 +15,9 @@ exports.getExpenses = async (req, res) => {
 
         res.render('expenses/index', {
             title: 'Expenses',
-            expenses,
-            user: req.user
+            currentUser: req.user,
+            currentPage: 'expenses', // sidebar highlight
+            expenses
         });
     } catch (error) {
         console.error('Get expenses error:', error);
@@ -25,13 +26,16 @@ exports.getExpenses = async (req, res) => {
     }
 };
 
+// GET /expenses/create - Show create expense form
 exports.getCreateExpense = (req, res) => {
     res.render('expenses/create', {
         title: 'Create Expense',
-        user: req.user
+        currentUser: req.user,
+        currentPage: 'expenses'
     });
 };
 
+// POST /expenses/create - Create new expense
 exports.postCreateExpense = async (req, res) => {
     try {
         const { category, amount, currency, date, description, merchant } = req.body;
@@ -58,6 +62,7 @@ exports.postCreateExpense = async (req, res) => {
     }
 };
 
+// GET /expenses/:id - View expense details
 exports.getExpenseDetails = async (req, res) => {
     try {
         const expense = await Expense.findById(req.params.id)
@@ -71,8 +76,9 @@ exports.getExpenseDetails = async (req, res) => {
 
         res.render('expenses/view', {
             title: 'Expense Details',
-            expense,
-            user: req.user
+            currentUser: req.user,
+            currentPage: 'expenses',
+            expense
         });
     } catch (error) {
         console.error('Get expense details error:', error);
@@ -81,6 +87,7 @@ exports.getExpenseDetails = async (req, res) => {
     }
 };
 
+// GET /expenses/:id/edit - Show edit form
 exports.getEditExpense = async (req, res) => {
     try {
         const expense = await Expense.findById(req.params.id);
@@ -97,8 +104,9 @@ exports.getEditExpense = async (req, res) => {
 
         res.render('expenses/edit', {
             title: 'Edit Expense',
-            expense,
-            user: req.user
+            currentUser: req.user,
+            currentPage: 'expenses',
+            expense
         });
     } catch (error) {
         console.error('Get edit expense error:', error);
@@ -107,6 +115,7 @@ exports.getEditExpense = async (req, res) => {
     }
 };
 
+// POST /expenses/:id/edit - Update expense
 exports.postEditExpense = async (req, res) => {
     try {
         const { category, amount, currency, date, description, merchant } = req.body;
@@ -139,6 +148,7 @@ exports.postEditExpense = async (req, res) => {
     }
 };
 
+// DELETE /expenses/:id - Delete expense
 exports.deleteExpense = async (req, res) => {
     try {
         const expense = await Expense.findById(req.params.id);
@@ -163,6 +173,7 @@ exports.deleteExpense = async (req, res) => {
     }
 };
 
+// GET /expenses/history - Expense history
 exports.getExpenseHistory = async (req, res) => {
     try {
         const query = { company: req.user.company, user: req.user._id };
@@ -172,8 +183,9 @@ exports.getExpenseHistory = async (req, res) => {
 
         res.render('expenses/history', {
             title: 'Expense History',
-            expenses,
-            user: req.user
+            currentUser: req.user,
+            currentPage: 'expenses',
+            expenses
         });
     } catch (error) {
         console.error('Get expense history error:', error);
@@ -182,6 +194,7 @@ exports.getExpenseHistory = async (req, res) => {
     }
 };
 
+// POST /expenses/:id/submit - Submit expense for approval
 exports.submitExpense = async (req, res) => {
     try {
         const expense = await Expense.findById(req.params.id);
@@ -199,6 +212,7 @@ exports.submitExpense = async (req, res) => {
         expense.status = 'pending';
         expense.submittedAt = new Date();
         await expense.save();
+
         req.flash('success_msg', 'Expense submitted for approval');
         res.redirect('/expenses');
     } catch (error) {

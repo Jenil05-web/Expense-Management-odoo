@@ -1,0 +1,183 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">Edit Expense</h1>
+        <a href="/expenses" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Cancel
+        </a>
+    </div>
+
+    <form action="/expenses/<%= expense.id %>/edit" method="POST" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Expense Amount & Currency -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Amount *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="amount" name="amount" placeholder="0.00" required step="0.01" value="<%= expense.amount %>">
+                                <select class="form-control" id="currency" name="currency" style="max-width: 120px;">
+                                    <option value="USD" <%= expense.currency === 'USD' ? 'selected' : '' %>>USD</option>
+                                    <option value="INR" <%= expense.currency === 'INR' ? 'selected' : '' %>>INR</option>
+                                    <option value="EUR" <%= expense.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+                                    <option value="GBP" <%= expense.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expense Category -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-control" id="category" name="category" required>
+                                <option value="Travel" <%= expense.category === 'Travel' ? 'selected' : '' %>>Travel</option>
+                                <option value="Food" <%= expense.category === 'Food' ? 'selected' : '' %>>Food & Dining</option>
+                                <option value="Accommodation" <%= expense.category === 'Accommodation' ? 'selected' : '' %>>Accommodation</option>
+                                <option value="Office Supplies" <%= expense.category === 'Office Supplies' ? 'selected' : '' %>>Office Supplies</option>
+                                <option value="Transportation" <%= expense.category === 'Transportation' ? 'selected' : '' %>>Transportation</option>
+                                <option value="Entertainment" <%= expense.category === 'Entertainment' ? 'selected' : '' %>>Client Entertainment</option>
+                                <option value="Other" <%= expense.category === 'Other' ? 'selected' : '' %>>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date of Expense -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="expenseDate" class="form-label">Date of Expense *</label>
+                            <input type="date" class="form-control" id="expenseDate" name="expenseDate" required value="<%= expense.expenseDate.toISOString().split('T')[0] %>">
+                        </div>
+                    </div>
+                    
+                    <!-- Merchant -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="merchant" class="form-label">Merchant / Vendor</label>
+                            <input type="text" class="form-control" id="merchant" name="merchant" placeholder="e.g., Uber, Starbucks" value="<%= expense.merchant || '' %>">
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="e.g., Taxi ride from airport to hotel" required><%= expense.description %></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Receipt Upload -->
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label">Attach Receipt</label>
+                            <div class="file-upload" id="file-drop-area">
+                                <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                <p class="file-upload-text"><strong>Drag & drop a new file here</strong> or click to browse</p>
+                                <input type="file" id="receipt" name="receipt" class="file-upload-input" accept="image/*,application/pdf">
+                                <div id="file-name" class="mt-2">
+                                    <% if (expense.receipts && expense.receipts.length > 0) { %>
+                                        Current file: <a href="<%= expense.receipts[0].url %>" target="_blank"><%= expense.receipts[0].filename %></a>
+                                    <% } %>
+                                </div>
+                            </div>
+                             <small class="form-text text-muted">Uploading a new file will replace the existing one. Max size: 5MB.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                 <form action="/expenses/<%= expense.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this expense?');" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i> Delete Expense
+                    </button>
+                </form>
+                <div>
+                    <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                    <button type="submit" name="action" value="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i> Re-submit for Approval
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileDropArea = document.getElementById('file-drop-area');
+        const fileInput = document.getElementById('receipt');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        fileDropArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `New file selected: ${fileInput.files[0].name}`;
+            }
+        });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, () => fileDropArea.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, () => fileDropArea.classList.remove('highlight'), false);
+        });
+
+        fileDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            
+            fileInput.files = files;
+             if (files.length > 0) {
+                fileNameDisplay.textContent = `New file selected: ${files[0].name}`;
+            }
+        }
+    });
+</script>
+
+<style>
+    .file-upload {
+        border: 2px dashed #e5e7eb;
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .file-upload.highlight,
+    .file-upload:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 15px;
+    }
+    .file-upload-text {
+        color: #6b7280;
+        margin: 0;
+    }
+    .file-upload-input {
+        display: none;
+    }
+</style>
+
+<%- include('../layouts/footer') %>

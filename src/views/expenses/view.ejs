@@ -1,0 +1,188 @@
+<%- include('../layouts/header') %>
+
+    <div class="container mt-4">
+        <div class="page-header">
+            <h1 class="page-title">Expense Details</h1>
+            <a href="/expenses" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Expenses
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Left Column: Expense Information -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Expense Claim by <%= expense.user ? expense.user.firstName + ' ' +
+                                expense.user.lastName : 'N/A' %>
+                        </h3>
+                        <% if (expense.status==='Approved' ) { %>
+                            <span class="badge badge-success">
+                                <%= expense.status %>
+                            </span>
+                            <% } else if (expense.status==='Rejected' ) { %>
+                                <span class="badge badge-danger">
+                                    <%= expense.status %>
+                                </span>
+                                <% } else if (expense.status==='PendingApproval' || expense.status==='Submitted' ) { %>
+                                    <span class="badge badge-warning">Pending</span>
+                                    <% } else { %>
+                                        <span class="badge badge-info">
+                                            <%= expense.status %>
+                                        </span>
+                                        <% } %>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <small class="text-muted">Amount</small>
+                                <p class="h4 font-weight-bold text-primary">
+                                    <%= expense.amount.toFixed(2) %>
+                                        <%= expense.currency %>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Category</small>
+                                <p>
+                                    <%= expense.category %>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">Date of Expense</small>
+                                <p>
+                                    <%= moment(expense.expenseDate).format('MMMM D, YYYY') %>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Merchant</small>
+                                <p>
+                                    <%= expense.merchant || 'Not specified' %>
+                                </p>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <small class="text-muted">Description</small>
+                                <p>
+                                    <%= expense.description %>
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <h4><i class="fas fa-receipt me-2"></i>Attached Receipt</h4>
+                        <% if (expense.receipts && expense.receipts.length> 0) { %>
+                            <a href="<%= expense.receipts[0].url %>" target="_blank" title="Click to view full size">
+                                <img src="<%= expense.receipts[0].url %>" alt="Receipt for <%= expense.description %>"
+                                    class="img-fluid rounded border shadow-sm"
+                                    style="max-height: 500px; object-fit: contain;">
+                            </a>
+                            <% } else { %>
+                                <div class="alert alert-light text-center">
+                                    <i class="fas fa-exclamation-circle me-2"></i>No receipt was attached to this
+                                    expense.
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Status & Actions -->
+            <div class="col-lg-4">
+                <!-- Actions Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <% if (user.id==expense.user.id && (expense.status==='Draft' || expense.status==='Rejected' )) {
+                            %>
+                            <a href="/expenses/<%= expense.id %>/edit" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-pencil-alt me-2"></i> Edit Expense
+                            </a>
+                            <form action="/expenses/<%= expense.id %>/submit" method="POST">
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> Submit for Approval
+                                </button>
+                            </form>
+                            <% } else if ((user.role==='admin' || user.role==='manager' ) &&
+                                (expense.status==='PendingApproval' || expense.status==='Submitted' )) { %>
+                                <a href="/approvals/<%= expense.id %>/review" class="btn btn-warning w-100">
+                                    <i class="fas fa-search me-2"></i> Review & Approve/Reject
+                                </a>
+                                <% } else { %>
+                                    <p class="text-muted text-center">No actions available for this expense in its
+                                        current state.</p>
+                                    <% } %>
+                    </div>
+                </div>
+
+                <!-- History Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Approval History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <!-- Submitted -->
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <span class="timeline-title">Submitted</span>
+                                        <span class="timeline-date">
+                                            <%= moment(expense.createdAt).format('MMM D, h:mm A') %>
+                                        </span>
+                                    </div>
+                                    <p class="timeline-description">
+                                        Expense created and submitted by <%= expense.user.firstName %>.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Add approval steps here -->
+                            <% if(expense.approvals && expense.approvals.length> 0) { %>
+                                <% expense.approvals.forEach(approval=> { %>
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker"
+                                            ? '#28a745' : '#dc3545' %>;">
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-header">
+                                                <span class="timeline-title">
+                                                    <%= approval.action %> by <%= approval.role %>
+                                                </span>
+                                                <span class="timeline-date">
+                                                    <%= moment(approval.actedAt).format('MMM D, h:mm A') %>
+                                                </span>
+                                            </div>
+                                            <p class="timeline-description">
+                                                Comment: <%= approval.comments || 'No comment.' %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } else if (expense.status !=='Draft' ) { %>
+                                            <div class="timeline-item">
+                                                <div class="timeline-marker"
+                                                    style="border-color: var(--warning-color);"></div>
+                                                <div class="timeline-content">
+                                                    <div class="timeline-header">
+                                                        <span class="timeline-title">Pending</span>
+                                                    </div>
+                                                    <p class="timeline-description">
+                                                        Waiting for the first level of approval.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <% } %>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

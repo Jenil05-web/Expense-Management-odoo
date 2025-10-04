@@ -1,152 +1,56 @@
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <img src="/images/logo.png" alt="Logo">
-            <span class="sidebar-logo-text">EMS</span>
-        </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
-            <i class="fas fa-bars"></i>
-        </button>
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <a href="/dashboard">
+            <img src="/images/logo.png" alt="Logo" class="sidebar-logo">
+            <span>Expense Manager</span>
+        </a>
     </div>
 
-    <nav class="sidebar-menu">
-        <ul>
-            <!-- Dashboard - Visible to all -->
-            <li class="sidebar-menu-item">
-                <a href="/dashboard" class="sidebar-menu-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
-                    <i class="fas fa-home sidebar-menu-icon"></i>
-                    <span class="sidebar-menu-text">Dashboard</span>
-                </a>
-            </li>
+    <ul class="sidebar-menu">
+        <li class="sidebar-menu-item">
+            <a href="/dashboard" class="sidebar-menu-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                <i class="fas fa-home sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Dashboard</span>
+            </a>
+        </li>
 
-            <!-- Expenses Section -->
-            <% if (user.role === 'employee' || user.role === 'manager' || user.role === 'admin') { %>
-                <li class="sidebar-menu-item">
-                    <a href="/expenses" class="sidebar-menu-link <%= currentPage === 'expenses' ? 'active' : '' %>">
-                        <i class="fas fa-receipt sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">My Expenses</span>
-                    </a>
-                </li>
+        <li class="sidebar-menu-item">
+            <a href="/expenses" class="sidebar-menu-link <%= currentPage === 'expenses' ? 'active' : '' %>">
+                <i class="fas fa-file-invoice-dollar sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Expenses</span>
+            </a>
+        </li>
 
-                <li class="sidebar-menu-item">
-                    <a href="/expenses/create" class="sidebar-menu-link <%= currentPage === 'create-expense' ? 'active' : '' %>">
-                        <i class="fas fa-plus-circle sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Submit Expense</span>
-                    </a>
-                </li>
+        <% if (currentUser.role === 'admin' || currentUser.role === 'manager') { %>
+        <li class="sidebar-menu-item">
+            <a href="/approvals" class="sidebar-menu-link <%= currentPage === 'approvals' ? 'active' : '' %>">
+                <i class="fas fa-check-circle sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Approvals</span>
+            </a>
+        </li>
+        <% } %>
 
-                <li class="sidebar-menu-item">
-                    <a href="/expenses/history" class="sidebar-menu-link <%= currentPage === 'expense-history' ? 'active' : '' %>">
-                        <i class="fas fa-history sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Expense History</span>
-                    </a>
-                </li>
-            <% } %>
+        <% if (currentUser.role === 'admin') { %>
+        <li class="sidebar-menu-item">
+            <a href="/users" class="sidebar-menu-link <%= currentPage === 'users' ? 'active' : '' %>">
+                <i class="fas fa-users sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Users</span>
+            </a>
+        </li>
 
-            <!-- Approvals Section - Manager & Admin -->
-            <% if (user.role === 'manager' || user.role === 'admin') { %>
-                <li class="sidebar-menu-item">
-                    <a href="/approvals/pending" class="sidebar-menu-link <%= currentPage === 'pending-approvals' ? 'active' : '' %>">
-                        <i class="fas fa-clock sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Pending Approvals</span>
-                        <% if (typeof pendingCount !== 'undefined' && pendingCount > 0) { %>
-                            <span class="badge badge-danger ms-auto"><%= pendingCount %></span>
-                        <% } %>
-                    </a>
-                </li>
+        <li class="sidebar-menu-item">
+            <a href="/company/settings" class="sidebar-menu-link <%= currentPage === 'company' ? 'active' : '' %>">
+                <i class="fas fa-building sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Company</span>
+            </a>
+        </li>
+        <% } %>
 
-                <li class="sidebar-menu-item">
-                    <a href="/approvals" class="sidebar-menu-link <%= currentPage === 'approvals' ? 'active' : '' %>">
-                        <i class="fas fa-check-double sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">All Approvals</span>
-                    </a>
-                </li>
-            <% } %>
-
-            <!-- Admin Only Section -->
-            <% if (user.role === 'admin') { %>
-                <li class="sidebar-menu-divider"></li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/users" class="sidebar-menu-link <%= currentPage === 'users' ? 'active' : '' %>">
-                        <i class="fas fa-users sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Manage Users</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/users/create" class="sidebar-menu-link <%= currentPage === 'create-user' ? 'active' : '' %>">
-                        <i class="fas fa-user-plus sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Add User</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/approvals/flow-setup" class="sidebar-menu-link <%= currentPage === 'approval-flow' ? 'active' : '' %>">
-                        <i class="fas fa-sitemap sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Approval Flows</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/approvals/rules" class="sidebar-menu-link <%= currentPage === 'approval-rules' ? 'active' : '' %>">
-                        <i class="fas fa-cogs sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Approval Rules</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/company/settings" class="sidebar-menu-link <%= currentPage === 'company-settings' ? 'active' : '' %>">
-                        <i class="fas fa-building sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Company Settings</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-menu-item">
-                    <a href="/expenses/all" class="sidebar-menu-link <%= currentPage === 'all-expenses' ? 'active' : '' %>">
-                        <i class="fas fa-file-invoice-dollar sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">All Expenses</span>
-                    </a>
-                </li>
-            <% } %>
-
-            <li class="sidebar-menu-divider"></li>
-
-            <!-- Profile & Settings -->
-            <li class="sidebar-menu-item">
-                <a href="/users/profile" class="sidebar-menu-link <%= currentPage === 'profile' ? 'active' : '' %>">
-                    <i class="fas fa-user sidebar-menu-icon"></i>
-                    <span class="sidebar-menu-text">My Profile</span>
-                </a>
-            </li>
-
-            <li class="sidebar-menu-item">
-                <a href="/auth/logout" class="sidebar-menu-link">
-                    <i class="fas fa-sign-out-alt sidebar-menu-icon"></i>
-                    <span class="sidebar-menu-text">Logout</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+        <li class="sidebar-menu-item mt-auto">
+            <a href="/auth/logout" class="sidebar-menu-link">
+                <i class="fas fa-sign-out-alt sidebar-menu-icon"></i>
+                <span class="sidebar-menu-text">Logout</span>
+            </a>
+        </li>
+    </ul>
 </aside>
-
-<style>
-.sidebar-menu-divider {
-    height: 1px;
-    background: #e5e7eb;
-    margin: 15px 20px;
-}
-
-.sidebar-menu-link {
-    position: relative;
-}
-
-.sidebar-menu-link .badge {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.7rem;
-    padding: 4px 8px;
-}
-</style>
