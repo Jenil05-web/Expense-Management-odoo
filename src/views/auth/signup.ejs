@@ -131,8 +131,25 @@
               />
             </div>
 
-            <input type="hidden" name="country" value="India" />
-            <input type="hidden" name="currency" value="INR" />
+            <!-- Country Dropdown with Currency -->
+            <div class="form-group">
+              <label for="country" class="form-label">
+                <i class="fas fa-globe me-1"></i> Country
+              </label>
+              <select id="country" name="country" class="form-select" required>
+                <option value="" disabled selected>Select your country</option>
+                <option value="India" data-currency="INR">India</option>
+                <option value="United States" data-currency="USD">United States</option>
+                <option value="United Kingdom" data-currency="GBP">United Kingdom</option>
+                <option value="Canada" data-currency="CAD">Canada</option>
+                <option value="Australia" data-currency="AUD">Australia</option>
+                <option value="Eurozone" data-currency="EUR">Eurozone</option>
+                <option value="Japan" data-currency="JPY">Japan</option>
+                <option value="Singapore" data-currency="SGD">Singapore</option>
+                <!-- Add more countries as needed -->
+              </select>
+              <input type="hidden" name="currency" id="currency" value="" />
+            </div>
 
             <button type="submit" class="btn btn-primary btn-auth mt-3 w-100">
               <i class="fas fa-user-plus me-2"></i> Create Account
@@ -152,7 +169,7 @@
   ></script>
 
   <script>
-    // Corrected the ID from "signupForm" to "signup"
+    // Password confirmation
     document.getElementById("signup").addEventListener("submit", function (e) {
       const password = document.getElementById("password").value.trim();
       const confirmPassword = document.getElementById("confirmPassword").value.trim();
@@ -162,6 +179,15 @@
         alert("Passwords do not match!");
         return false;
       }
+    });
+
+    // Set currency automatically based on country
+    const countrySelect = document.getElementById("country");
+    const currencyInput = document.getElementById("currency");
+
+    countrySelect.addEventListener("change", function () {
+      const selectedOption = this.options[this.selectedIndex];
+      currencyInput.value = selectedOption.getAttribute("data-currency");
     });
   </script>
 </body>
