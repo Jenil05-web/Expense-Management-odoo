@@ -1,19 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const userController = require('../controllers/userController');
+const { isAdmin, isAdminOrManager } = require('../middleware/roleCheck');
 
-// This is a placeholder for user management routes (e.g., create, view, edit users)
-// You would typically add middleware here to ensure only admins can access these routes.
-
-// @desc    Show all users
-// @route   GET /users
-router.get('/', (req, res) => {
-    res.send('<h1>User Management Page</h1><p>List of all users will be here.</p>');
-});
-
-// @desc    Show form to add a new user
-// @route   GET /users/new
-router.get('/new', (req, res) => {
-    res.send('<h1>Add New User Form</h1>');
-});
+router.get('/', isAdminOrManager, userController.getUsers);
+router.get('/create', isAdmin, userController.getCreateUser);
+router.post('/create', isAdmin, userController.postCreateUser);
+router.get('/:id/edit', isAdmin, userController.getEditUser);
+router.post('/:id/edit', isAdmin, userController.postEditUser);
+router.post('/:id/delete', isAdmin, userController.deleteUser);
+router.get('/:id/profile', userController.getUserProfile);
+router.post('/:id/toggle-status', isAdmin, userController.toggleUserStatus);
 
 module.exports = router;

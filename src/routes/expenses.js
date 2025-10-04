@@ -1,18 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const expenseController = require('../controllers/expenseController');
 
-// This is a placeholder for expense-related routes
-
-// @desc    Show all expenses for the current user or all users (if admin)
-// @route   GET /expenses
-router.get('/', (req, res) => {
-    res.send('<h1>All Expenses</h1><p>A list of expenses will be displayed here.</p>');
-});
-
-// @desc    Show form to create a new expense
-// @route   GET /expenses/new
-router.get('/new', (req, res) => {
-    res.send('<h1>Submit New Expense Form</h1>');
-});
+// IMPORTANT: Put /history BEFORE /:id to avoid route conflict
+router.get('/history', expenseController.getExpenseHistory);
+router.get('/create', expenseController.getCreateExpense);
+router.post('/create', expenseController.postCreateExpense);
+router.get('/:id', expenseController.getExpenseDetails);
+router.get('/:id/edit', expenseController.getEditExpense);
+router.post('/:id/edit', expenseController.postEditExpense);
+router.post('/:id/delete', expenseController.deleteExpense);
+router.post('/:id/submit', expenseController.submitExpense);
 
 module.exports = router;
