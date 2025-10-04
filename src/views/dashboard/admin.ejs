@@ -1,97 +1,1389 @@
-<%- include('../partials/header', { user: currentUser }) %>
-<%- include('../partials/sidebar', { currentUser, currentPage }) %>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <h1 class="display-4">Admin Dashboard</h1>
-            <p class="lead">Welcome, <%= currentUser.firstName %>!</p>
-        </div>
-    </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard - Expense Management</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #3498db;
+                --success-color: #27ae60;
+                --danger-color: #e74c3c;
+                --warning-color: #f39c12;
+            }
 
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Total Users</div>
-                <div class="card-body">
-                    <h5 class="card-title"><%= stats.totalUsers %></h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Active Users</div>
-                <div class="card-body">
-                    <h5 class="card-title"><%= stats.activeUsers %></h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-header">Pending Expenses</div>
-                <div class="card-body">
-                    <h5 class="card-title"><%= stats.pendingExpenses %></h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Approved Expenses</div>
-                <div class="card-body">
-                    <h5 class="card-title"><%= stats.approvedExpenses %></h5>
-                </div>
-            </div>
-        </div>
-    </div>
+            body {
+                background-color: #ecf0f1;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">Total Expense Amount</div>
-                <div class="card-body">
-                    <h5 class="card-title">$<%= stats.totalAmount %></h5>
+            .sidebar {
+                min-height: 100vh;
+                background: linear-gradient(135deg, var(--primary-color) 0%, #34495e 100%);
+                color: white;
+                padding: 20px 0;
+                position: fixed;
+                width: 250px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar .nav-link {
+                color: rgba(255, 255, 255, 0.8);
+                padding: 12px 25px;
+                margin: 5px 10px;
+                border-radius: 8px;
+                transition: all 0.3s;
+            }
+
+            .sidebar .nav-link:hover,
+            .sidebar .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+
+            .main-content {
+                margin-left: 250px;
+                padding: 30px;
+            }
+
+            .header {
+                background: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 10px;
+                padding: 25px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .stat-card .icon {
+                font-size: 2.5rem;
+                opacity: 0.8;
+            }
+
+            .card-custom {
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+            }
+
+            .card-custom .card-header {
+                background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+                color: white;
+                border-radius: 10px 10px 0 0 !important;
+                padding: 15px 20px;
+                font-weight: 600;
+            }
+
+            .table-custom {
+                background: white;
+            }
+
+            .table-custom thead {
+                background-color: #f8f9fa;
+            }
+
+            .badge-custom {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-weight: 500;
+            }
+
+            .btn-custom {
+                border-radius: 8px;
+                padding: 8px 20px;
+                font-weight: 500;
+                transition: all 0.3s;
+            }
+
+            .modal-content {
+                border-radius: 15px;
+                border: none;
+            }
+
+            .modal-header {
+                background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+                color: white;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            }
+
+            .approval-rule-item {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-left: 4px solid var(--secondary-color);
+            }
+
+            .approver-sequence {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .approver-step {
+                background: white;
+                border: 2px solid var(--secondary-color);
+                border-radius: 8px;
+                padding: 10px 15px;
+                flex: 1;
+            }
+
+            .company-info {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+
+            .logo-container {
+                text-align: center;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .logo-container h3 {
+                color: white;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+
+            .logo-container small {
+                color: rgba(255, 255, 255, 0.8);
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-receipt fa-3x mb-2"></i>
+                <h3>ExpenseFlow</h3>
+                <small>Admin Panel</small>
+            </div>
+
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('users')">
+                    <i class="fas fa-users me-2"></i> User Management
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('approval-rules')">
+                    <i class="fas fa-cogs me-2"></i> Approval Rules
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('expenses')">
+                    <i class="fas fa-file-invoice-dollar me-2"></i> All Expenses
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('reports')">
+                    <i class="fas fa-chart-bar me-2"></i> Reports
+                </a>
+                <hr style="border-color: rgba(255,255,255,0.2);">
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">Welcome, <%= user.name %>
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        <%= company.name %>
+                            <span class="badge bg-secondary ms-2">
+                                <%= company.currency %>
+                            </span>
+                    </p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary btn-custom me-2"
+                        onclick="showSection('users'); openModal('addUserModal')">
+                        <i class="fas fa-user-plus me-2"></i>Add User
+                    </button>
+                    <button class="btn btn-primary btn-custom"
+                        onclick="showSection('approval-rules'); openModal('addApprovalRuleModal')">
+                        <i class="fas fa-plus me-2"></i>New Approval Rule
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section">
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Total Employees</p>
+                                    <h3 class="mb-0">
+                                        <%= stats.totalEmployees || 0 %>
+                                    </h3>
+                                </div>
+                                <div class="icon text-primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Pending Approvals</p>
+                                    <h3 class="mb-0">
+                                        <%= stats.pendingExpenses || 0 %>
+                                    </h3>
+                                </div>
+                                <div class="icon text-warning">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Total Expenses</p>
+                                    <h3 class="mb-0">
+                                        <%= company.currency %>
+                                            <%= stats.totalAmount || 0 %>
+                                    </h3>
+                                </div>
+                                <div class="icon text-success">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">This Month</p>
+                                    <h3 class="mb-0">
+                                        <%= company.currency %>
+                                            <%= stats.monthlyAmount || 0 %>
+                                    </h3>
+                                </div>
+                                <div class="icon text-info">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Employee</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(recentExpenses && recentExpenses.length> 0) { %>
+                                        <% recentExpenses.forEach(expense=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= new Date(expense.date).toLocaleDateString() %>
+                                                </td>
+                                                <td>
+                                                    <%= expense.employee.name %>
+                                                </td>
+                                                <td>
+                                                    <%= expense.description %>
+                                                </td>
+                                                <td>
+                                                    <%= company.currency %>
+                                                        <%= expense.amountInCompanyCurrency.toFixed(2) %>
+                                                </td>
+                                                <td>
+                                                    <% if(expense.status==='approved' ) { %>
+                                                        <span class="badge bg-success badge-custom">Approved</span>
+                                                        <% } else if(expense.status==='rejected' ) { %>
+                                                            <span class="badge bg-danger badge-custom">Rejected</span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="badge bg-warning badge-custom">Pending</span>
+                                                                <% } %>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        onclick="viewExpense('<%= expense._id %>')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted">No recent
+                                                            expenses</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div id="users" class="section" style="display: none;">
+                <div class="card card-custom">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users me-2"></i>User Management</span>
+                        <button class="btn btn-light btn-sm" onclick="openModal('addUserModal')">
+                            <i class="fas fa-plus me-1"></i>Add User
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Manager</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(users && users.length> 0) { %>
+                                        <% users.forEach(u=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= u.name %>
+                                                </td>
+                                                <td>
+                                                    <%= u.email %>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge bg-<%= u.role === 'admin' ? 'danger' : u.role === 'manager' ? 'primary' : 'secondary' %> badge-custom">
+                                                        <%= u.role.toUpperCase() %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <%= u.manager ? u.manager.name : 'N/A' %>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success badge-custom">Active</span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        onclick="editUser('<%= u._id %>')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <% if(u._id !==user._id) { %>
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                            onclick="deleteUser('<%= u._id %>')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                        <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted">No users found
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approval Rules Section -->
+            <div id="approval-rules" class="section" style="display: none;">
+                <div class="card card-custom">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-cogs me-2"></i>Approval Rules Configuration</span>
+                        <button class="btn btn-light btn-sm" onclick="openModal('addApprovalRuleModal')">
+                            <i class="fas fa-plus me-1"></i>Add Rule
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Configure approval workflows for different expense scenarios. You can set sequential
+                            approvers or conditional rules based on percentage or specific approvers.
+                        </div>
+
+                        <% if(approvalRules && approvalRules.length> 0) { %>
+                            <% approvalRules.forEach((rule, index)=> { %>
+                                <div class="approval-rule-item">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">
+                                                <%= rule.name %>
+                                            </h5>
+                                            <p class="text-muted mb-2">
+                                                <%= rule.description || 'No description' %>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary me-2"
+                                                onclick="editApprovalRule('<%= rule._id %>')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteApprovalRule('<%= rule._id %>')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <% if(rule.isManagerApprover) { %>
+                                        <div class="mb-2">
+                                            <span class="badge bg-info">Manager Approval Required</span>
+                                        </div>
+                                        <% } %>
+
+                                            <% if(rule.approvers && rule.approvers.length> 0) { %>
+                                                <div class="mb-3">
+                                                    <strong>Sequential Approvers:</strong>
+                                                    <div class="approver-sequence mt-2">
+                                                        <% rule.approvers.forEach((approver, idx)=> { %>
+                                                            <div class="approver-step">
+                                                                <small class="text-muted">Step <%= idx + 1 %></small>
+                                                                <div><strong>
+                                                                        <%= approver.name %>
+                                                                    </strong></div>
+                                                                <small>
+                                                                    <%= approver.role %>
+                                                                </small>
+                                                            </div>
+                                                            <% if(idx < rule.approvers.length - 1) { %>
+                                                                <i class="fas fa-arrow-right text-muted"></i>
+                                                                <% } %>
+                                                                    <% }); %>
+                                                    </div>
+                                                </div>
+                                                <% } %>
+
+                                                    <% if(rule.conditionalRules) { %>
+                                                        <div>
+                                                            <strong>Conditional Rules:</strong>
+                                                            <ul class="mt-2 mb-0">
+                                                                <% if(rule.conditionalRules.percentageRule) { %>
+                                                                    <li>
+                                                                        <strong>Percentage Rule:</strong>
+                                                                        Approve if <%=
+                                                                            rule.conditionalRules.percentageRule %>% of
+                                                                            approvers approve
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <% if(rule.conditionalRules.specificApprover) {
+                                                                            %>
+                                                                            <li>
+                                                                                <strong>Specific Approver:</strong>
+                                                                                Auto-approve if <%=
+                                                                                    rule.conditionalRules.specificApprover.name
+                                                                                    %> approves
+                                                                            </li>
+                                                                            <% } %>
+                                                            </ul>
+                                                        </div>
+                                                        <% } %>
+                                </div>
+                                <% }); %>
+                                    <% } else { %>
+                                        <div class="text-center text-muted py-5">
+                                            <i class="fas fa-cogs fa-3x mb-3" style="opacity: 0.3;"></i>
+                                            <p>No approval rules configured yet. Click "Add Rule" to create one.</p>
+                                        </div>
+                                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Expenses Section -->
+            <div id="expenses" class="section" style="display: none;">
+                <div class="card card-custom">
+                    <div class="card-header">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>All Expenses
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="statusFilter" onchange="filterExpenses()">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="categoryFilter" onchange="filterExpenses()">
+                                    <option value="">All Categories</option>
+                                    <option value="food">Food</option>
+                                    <option value="travel">Travel</option>
+                                    <option value="accommodation">Accommodation</option>
+                                    <option value="supplies">Supplies</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="searchExpense"
+                                    placeholder="Search by description or employee..." onkeyup="filterExpenses()">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Employee</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expensesTableBody">
+                                    <% if(expenses && expenses.length> 0) { %>
+                                        <% expenses.forEach(expense=> { %>
+                                            <tr data-status="<%= expense.status %>"
+                                                data-category="<%= expense.category %>">
+                                                <td>#<%= expense.expenseId || expense._id.toString().slice(-6) %>
+                                                </td>
+                                                <td>
+                                                    <%= new Date(expense.date).toLocaleDateString() %>
+                                                </td>
+                                                <td>
+                                                    <%= expense.employee.name %>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary badge-custom">
+                                                        <%= expense.category %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <%= expense.description %>
+                                                </td>
+                                                <td>
+                                                    <%= expense.currency %>
+                                                        <%= expense.amount.toFixed(2) %>
+                                                            <% if(expense.currency !==company.currency) { %>
+                                                                <br><small class="text-muted">
+                                                                    (<%= company.currency %>
+                                                                        <%= expense.amountInCompanyCurrency.toFixed(2)
+                                                                            %>)
+                                                                </small>
+                                                                <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if(expense.status==='approved' ) { %>
+                                                        <span class="badge bg-success badge-custom">Approved</span>
+                                                        <% } else if(expense.status==='rejected' ) { %>
+                                                            <span class="badge bg-danger badge-custom">Rejected</span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="badge bg-warning badge-custom">Pending</span>
+                                                                <% } %>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        onclick="viewExpense('<%= expense._id %>')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <% if(expense.status==='pending' ) { %>
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                            onclick="overrideExpense('<%= expense._id %>', 'rejected')">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-success"
+                                                            onclick="overrideExpense('<%= expense._id %>', 'approved')">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                        <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="8" class="text-center text-muted">No expenses found
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="section" style="display: none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card card-custom">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-2"></i>Expenses by Category
+                            </div>
+                            <div class="card-body">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-custom">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-2"></i>Monthly Trend
+                            </div>
+                            <div class="card-body">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-custom mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-file-export me-2"></i>Export Reports
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Date Range</label>
+                                <div class="input-group mb-3">
+                                    <input type="date" class="form-control" id="exportStartDate">
+                                    <span class="input-group-text">to</span>
+                                    <input type="date" class="form-control" id="exportEndDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Format</label>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-success btn-custom" onclick="exportReport('excel')">
+                                        <i class="fas fa-file-excel me-2"></i>Excel
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-custom" onclick="exportReport('pdf')">
+                                        <i class="fas fa-file-pdf me-2"></i>PDF
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-custom" onclick="exportReport('csv')">
+                                        <i class="fas fa-file-csv me-2"></i>CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">Pending Expense Amount</div>
-                <div class="card-body">
-                    <h5 class="card-title">$<%= stats.pendingAmount %></h5>
+
+        <!-- Add User Modal -->
+        <div class="modal fade" id="addUserModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="addUserForm" onsubmit="submitAddUser(event)">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" required minlength="6">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" name="role" id="userRole" onchange="toggleManagerField()"
+                                    required>
+                                    <option value="employee">Employee</option>
+                                    <option value="manager">Manager</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="managerField">
+                                <label class="form-label">Manager</label>
+                                <select class="form-select" name="manager">
+                                    <option value="">Select Manager</option>
+                                    <% if(managers && managers.length> 0) { %>
+                                        <% managers.forEach(m=> { %>
+                                            <option value="<%= m._id %>">
+                                                <%= m.name %>
+                                            </option>
+                                            <% }); %>
+                                                <% } %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add User</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row mt-5">
-        <div class="col-md-12">
-            <h2>Recent Expenses</h2>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Category</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% recentExpenses.forEach(expense => { %>
-                        <tr>
-                            <td><%= expense.user.firstName %> <%= expense.user.lastName %></td>
-                            <td><%= expense.category %></td>
-                            <td><%= expense.description %></td>
-                            <td>$<%= expense.amount %></td>
-                            <td><%= expense.status %></td>
-                            <td><%= expense.createdAt.toDateString() %></td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+        <!-- Add Approval Rule Modal -->
+        <div class="modal fade" id="addApprovalRuleModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-cogs me-2"></i>Configure Approval Rule</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="addApprovalRuleForm" onsubmit="submitApprovalRule(event)">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Rule Name</label>
+                                <input type="text" class="form-control" name="name"
+                                    placeholder="e.g., Miscellaneous Expenses" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="2"
+                                    placeholder="Describe when this rule applies"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="isManagerApprover"
+                                        id="isManagerApprover">
+                                    <label class="form-check-label" for="isManagerApprover">
+                                        <strong>Require Manager Approval First</strong>
+                                        <small class="d-block text-muted">If checked, expense must be approved by
+                                            employee's manager before other approvers</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="mb-3">Sequential Approvers</h6>
+                            <div id="approversContainer">
+                                <div class="approver-item mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Step 1</span>
+                                        <select class="form-select" name="approvers[]">
+                                            <option value="">Select Approver</option>
+                                            <% if(users && users.length> 0) { %>
+                                                <% users.forEach(u=> { %>
+                                                    <% if(u.role==='manager' || u.role==='admin' ) { %>
+                                                        <option value="<%= u._id %>">
+                                                            <%= u.name %> (<%= u.role %>)
+                                                        </option>
+                                                        <% } %>
+                                                            <% }); %>
+                                                                <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addApproverStep()">
+                                <i class="fas fa-plus me-1"></i>Add Another Approver
+                            </button>
+
+                            <hr>
+
+                            <h6 class="mb-3">Conditional Rules (Optional)</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Percentage Rule</label>
+                                    <div class="input-group mb-3">
+                                        <input type="number" class="form-control" name="percentageRule" min="1"
+                                            max="100" placeholder="60">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <small class="text-muted">If this % of approvers approve, auto-approve
+                                        expense</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Specific Approver</label>
+                                    <select class="form-select mb-3" name="specificApprover">
+                                        <option value="">Select Specific Approver</option>
+                                        <% if(users && users.length> 0) { %>
+                                            <% users.forEach(u=> { %>
+                                                <% if(u.role==='manager' || u.role==='admin' ) { %>
+                                                    <option value="<%= u._id %>">
+                                                        <%= u.name %> (<%= u.role %>)
+                                                    </option>
+                                                    <% } %>
+                                                        <% }); %>
+                                                            <% } %>
+                                    </select>
+                                    <small class="text-muted">If this approver approves, auto-approve expense</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Approval Rule</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<%- include('../partials/footer') %>
+        <!-- View Expense Modal -->
+        <div class="modal fade" id="viewExpenseModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i>Expense Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="expenseDetailsContent">
+                        <!-- Content will be loaded dynamically -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="editUserForm" onsubmit="submitEditUser(event)">
+                        <input type="hidden" name="userId" id="editUserId">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" id="editUserName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" id="editUserEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" name="role" id="editUserRole" required>
+                                    <option value="employee">Employee</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Manager</label>
+                                <select class="form-select" name="manager" id="editUserManager">
+                                    <option value="">No Manager</option>
+                                    <% if(managers && managers.length> 0) { %>
+                                        <% managers.forEach(m=> { %>
+                                            <option value="<%= m._id %>">
+                                                <%= m.name %>
+                                            </option>
+                                            <% }); %>
+                                                <% } %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            // Section Navigation
+            function showSection(sectionId) {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.getElementById(sectionId).style.display = 'block';
+
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                event.target.closest('.nav-link').classList.add('active');
+            }
+
+            // Modal Functions
+            function openModal(modalId) {
+                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                modal.show();
+            }
+
+            // Toggle Manager Field
+            function toggleManagerField() {
+                const role = document.getElementById('userRole').value;
+                const managerField = document.getElementById('managerField');
+                if (role === 'employee') {
+                    managerField.style.display = 'block';
+                } else {
+                    managerField.style.display = 'none';
+                }
+            }
+
+            // Add Approver Step
+            let approverStepCount = 1;
+            function addApproverStep() {
+                approverStepCount++;
+                const container = document.getElementById('approversContainer');
+                const newStep = document.createElement('div');
+                newStep.className = 'approver-item mb-2';
+                newStep.innerHTML = `
+                <div class="input-group">
+                    <span class="input-group-text">Step ${approverStepCount}</span>
+                    <select class="form-select" name="approvers[]">
+                        <option value="">Select Approver</option>
+                        <% if(users && users.length > 0) { %>
+                            <% users.forEach(u => { %>
+                                <% if(u.role === 'manager' || u.role === 'admin') { %>
+                                    <option value="<%= u._id %>"><%= u.name %> (<%= u.role %>)</option>
+                                <% } %>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                    <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.parentElement.remove(); renumberSteps();">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+                container.appendChild(newStep);
+            }
+
+            function renumberSteps() {
+                const steps = document.querySelectorAll('#approversContainer .approver-item');
+                steps.forEach((step, index) => {
+                    step.querySelector('.input-group-text').textContent = `Step ${index + 1}`;
+                });
+                approverStepCount = steps.length;
+            }
+
+            // Submit Add User
+            async function submitAddUser(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('/admin/users', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        alert('User added successfully!');
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || 'Failed to add user'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // Submit Approval Rule
+            async function submitApprovalRule(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+
+                const data = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    isManagerApprover: formData.get('isManagerApprover') === 'on',
+                    approvers: formData.getAll('approvers[]').filter(a => a),
+                    conditionalRules: {}
+                };
+
+                if (formData.get('percentageRule')) {
+                    data.conditionalRules.percentageRule = parseInt(formData.get('percentageRule'));
+                }
+                if (formData.get('specificApprover')) {
+                    data.conditionalRules.specificApprover = formData.get('specificApprover');
+                }
+
+                try {
+                    const response = await fetch('/admin/approval-rules', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        alert('Approval rule created successfully!');
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || 'Failed to create approval rule'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // View Expense
+            async function viewExpense(expenseId) {
+                const modal = new bootstrap.Modal(document.getElementById('viewExpenseModal'));
+                modal.show();
+
+                try {
+                    const response = await fetch(`/admin/expenses/${expenseId}`);
+                    const expense = await response.json();
+
+                    document.getElementById('expenseDetailsContent').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Employee:</strong></td>
+                                    <td>${expense.employee.name}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date:</strong></td>
+                                    <td>${new Date(expense.date).toLocaleDateString()}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Category:</strong></td>
+                                    <td><span class="badge bg-secondary">${expense.category}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Description:</strong></td>
+                                    <td>${expense.description}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Financial Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Amount:</strong></td>
+                                    <td>${expense.currency} ${expense.amount.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>In Company Currency:</strong></td>
+                                    <td><%= company.currency %> ${expense.amountInCompanyCurrency.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        ${expense.status === 'approved' ? '<span class="badge bg-success">Approved</span>' :
+                            expense.status === 'rejected' ? '<span class="badge bg-danger">Rejected</span>' :
+                                '<span class="badge bg-warning">Pending</span>'}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    ${expense.receipt ? `
+                        <div class="mt-3">
+                            <h6>Receipt</h6>
+                            <img src="${expense.receipt}" class="img-fluid" style="max-height: 400px;">
+                        </div>
+                    ` : ''}
+                    ${expense.approvalHistory && expense.approvalHistory.length > 0 ? `
+                        <div class="mt-3">
+                            <h6>Approval History</h6>
+                            <div class="timeline">
+                                ${expense.approvalHistory.map(h => `
+                                    <div class="mb-2">
+                                        <strong>${h.approver.name}</strong> 
+                                        ${h.status === 'approved' ? '<span class="badge bg-success">Approved</span>' : '<span class="badge bg-danger">Rejected</span>'}
+                                        <br>
+                                        <small class="text-muted">${new Date(h.date).toLocaleString()}</small>
+                                        ${h.comments ? `<br><em>"${h.comments}"</em>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                } catch (error) {
+                    document.getElementById('expenseDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">Error loading expense details: ${error.message}</div>
+                `;
+                }
+            }
+
+            // Edit User
+            async function editUser(userId) {
+                try {
+                    const response = await fetch(`/admin/users/${userId}`);
+                    const user = await response.json();
+
+                    document.getElementById('editUserId').value = user._id;
+                    document.getElementById('editUserName').value = user.name;
+                    document.getElementById('editUserEmail').value = user.email;
+                    document.getElementById('editUserRole').value = user.role;
+                    document.getElementById('editUserManager').value = user.manager || '';
+
+                    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                    modal.show();
+                } catch (error) {
+                    alert('Error loading user data: ' + error.message);
+                }
+            }
+
+            // Submit Edit User
+            async function submitEditUser(event) {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const userId = formData.get('userId');
+                const data = Object.fromEntries(formData);
+                delete data.userId;
+
+                try {
+                    const response = await fetch(`/admin/users/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        alert('User updated successfully!');
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || 'Failed to update user'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // Delete User
+            async function deleteUser(userId) {
+                if (!confirm('Are you sure you want to delete this user?')) return;
+
+                try {
+                    const response = await fetch(`/admin/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('User deleted successfully!');
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || 'Failed to delete user'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // Delete Approval Rule
+            async function deleteApprovalRule(ruleId) {
+                if (!confirm('Are you sure you want to delete this approval rule?')) return;
+
+                try {
+                    const response = await fetch(`/admin/approval-rules/${ruleId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Approval rule deleted successfully!');
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || 'Failed to delete approval rule'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // Override Expense
+            async function overrideExpense(expenseId, status) {
+                const action = status === 'approved' ? 'approve' : 'reject';
+                if (!confirm(`Are you sure you want to ${action} this expense? This will override the normal approval flow.`)) return;
+
+                try {
+                    const response = await fetch(`/admin/expenses/${expenseId}/override`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({status})
+                    });
+
+                    if (response.ok) {
+                        alert(`Expense ${status} successfully!`);
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('Error: ' + (error.message || `Failed to ${action} expense`));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+
+            // Filter Expenses
+            function filterExpenses() {
+                const statusFilter = document.getElementById('statusFilter').value;
+                const categoryFilter = document.getElementById('categoryFilter').value;
+                const searchText = document.getElementById('searchExpense').value.toLowerCase();
+
+                const rows = document.querySelectorAll('#expensesTableBody tr');
+
+                rows.forEach(row => {
+                    const status = row.getAttribute('data-status');
+                    const category = row.getAttribute('data-category');
+                    const text = row.textContent.toLowerCase();
+
+                    let show = true;
+
+                    if (statusFilter && status !== statusFilter) show = false;
+                    if (categoryFilter && category !== categoryFilter) show = false;
+                    if (searchText && !text.includes(searchText)) show = false;
+
+                    row.style.display = show ? '' : 'none';
+                });
+            }
+
+            // Export Report
+            function exportReport(format) {
+                const startDate = document.getElementById('exportStartDate').value;
+                const endDate = document.getElementById('exportEndDate').value;
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+
+                window.location.href = `/admin/reports/export?format=${format}&startDate=${startDate}&endDate=${endDate}`;
+            }
+
+            // Initialize Charts
+            window.addEventListener('DOMContentLoaded', () => {
+                // Category Chart
+                const categoryCtx = document.getElementById('categoryChart');
+                if (categoryCtx) {
+                    new Chart(categoryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: <%= JSON.stringify((chartData && chartData.categories) ? chartData.categories : ['Food', 'Travel', 'Supplies']) %>,
+                            datasets: [{
+                                data: <%= JSON.stringify((chartData && chartData.categoryAmounts) ? chartData.categoryAmounts : [5000, 3000, 2000]) %>,
+                                backgroundColor: [
+                                    '#3498db',
+                                    '#2ecc71',
+                                    '#f39c12',
+                                    '#e74c3c',
+                                    '#9b59b6'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Trend Chart
+                const trendCtx = document.getElementById('trendChart');
+                if (trendCtx) {
+                    new Chart(trendCtx, {
+                        type: 'line',
+                        data: {
+                            labels: <%= JSON.stringify((chartData && chartData.months) ? chartData.months : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) %>,
+                            datasets: [{
+                                label: 'Expenses',
+                                data: <%= JSON.stringify((chartData && chartData.monthlyAmounts) ? chartData.monthlyAmounts : [12000, 15000, 13000, 18000, 16000, 20000]) %>,
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+    </body>
+
+</html>
