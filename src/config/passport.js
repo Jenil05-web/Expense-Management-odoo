@@ -12,12 +12,13 @@ module.exports = function (passport) {
           return done(null, false, { message: "Invalid email or password" });
         }
 
-        // Make sure user has a password saved
+        // Check if user has a password
         if (!user.password) {
-          return done(null, false, { message: "User has no password set" });
+          // Optional: you can force them to reset password
+          return done(null, false, { message: "This account has no password set. Please reset." });
         }
 
-        // Compare passwords safely
+        // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
           return done(null, false, { message: "Invalid email or password" });
@@ -26,7 +27,7 @@ module.exports = function (passport) {
         // Success
         return done(null, user);
       } catch (err) {
-        console.error(err);
+        console.error("Passport login error:", err);
         return done(err);
       }
     })

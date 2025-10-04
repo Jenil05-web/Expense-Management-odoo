@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Expense = require('../models/Expense');
 const Company = require('../models/Company');
+const ApprovalRule = require('../models/ApprovalFlow');
 
 // GET /dashboard - Render dashboard based on user role
 exports.getDashboard = async (req, res) => {
@@ -24,48 +25,156 @@ exports.getDashboard = async (req, res) => {
 // -------------------- Admin Dashboard --------------------
 async function renderAdminDashboard(req, res) {
     try {
+        // Get basic company info
         const company = await Company.findById(req.user.company);
 
-        const totalUsers = await User.countDocuments({ company: req.user.company });
-        const activeUsers = await User.countDocuments({ company: req.user.company, isActive: true });
-        const totalExpenses = await Expense.countDocuments({ company: req.user.company });
-        const pendingExpenses = await Expense.countDocuments({ company: req.user.company, status: 'pending' });
-        const approvedExpenses = await Expense.countDocuments({ company: req.user.company, status: 'approved' });
-
-        const totalAmountAgg = await Expense.aggregate([
-            { $match: { company: req.user.company } },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
+        // Get users and managers
+        const [users, managers] = await Promise.all([
+            User.find({ company: req.user.company })
+                .select('firstName lastName email role department'),
+            User.find({ 
+                company: req.user.company, 
+                role: 'manager' 
+            }).select('firstName lastName email department')
         ]);
 
-        const pendingAmountAgg = await Expense.aggregate([
-            { $match: { company: req.user.company, status: 'pending' } },
-            { $group: { _id: null, total: { $sum: '$amount' } } }
+        // Get expense statistics
+        const [totalExpenses, pendingExpenses, recentExpenses] = await Promise.all([
+            Expense.countDocuments({ company: req.user.company }),
+            Expense.countDocuments({ 
+                company: req.user.company, 
+                status: 'pending' 
+            }),
+            Expense.find({ company: req.user.company })
+                .populate('user', 'firstName lastName')
+                .sort({ createdAt: -1 })
+                .limit(10)
         ]);
 
-        const recentExpenses = await Expense.find({ company: req.user.company })
-            .populate('user', 'firstName lastName')
-            .sort({ createdAt: -1 })
-            .limit(10);
+        // Calculate total and monthly amounts
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
 
+        const [totalAmount, monthlyAmount] = await Promise.all([
+            Expense.aggregate([
+                { 
+                    $match: { 
+                        company: req.user.company._id,
+                        status: 'approved'
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$amount' }
+                    }
+                }
+            ]),
+            Expense.aggregate([
+                {
+                    $match: {
+                        company: req.user.company._id,
+                        status: 'approved',
+                        createdAt: {
+                            $gte: new Date(currentYear, currentMonth, 1),
+                            $lt: new Date(currentYear, currentMonth + 1, 1)
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$amount' }
+                    }
+                }
+            ])
+        ]);
+
+        // Get chart data
+        const categoryData = await Expense.aggregate([
+            {
+                $match: {
+                    company: req.user.company._id,
+                    status: 'approved'
+                }
+            },
+            {
+                $group: {
+                    _id: '$category',
+                    total: { $sum: '$amount' }
+                }
+            }
+        ]);
+
+        const monthlyData = await Expense.aggregate([
+            {
+                $match: {
+                    company: req.user.company._id,
+                    status: 'approved',
+                    createdAt: {
+                        $gte: new Date(currentYear, 0, 1),
+                        $lt: new Date(currentYear + 1, 0, 1)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: '$createdAt' },
+                    total: { $sum: '$amount' }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Get approval rules
+        const approvalRules = await ApprovalRule.find({ 
+            company: req.user.company 
+        });
+
+        // Format chart data
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyAmounts = Array(12).fill(0);
+        monthlyData.forEach(data => {
+            monthlyAmounts[data._id - 1] = data.total;
+        });
+
+        const categories = categoryData.map(cat => cat._id);
+        const categoryAmounts = categoryData.map(cat => cat.total);
+
+        // Render dashboard with all data
         res.render('dashboard/admin', {
             title: 'Admin Dashboard',
-            currentUser: req.user,
-            currentPage: 'admin', // for sidebar active link
-            company,
-            stats: {
-                totalUsers,
-                activeUsers,
-                totalExpenses,
-                pendingExpenses,
-                approvedExpenses,
-                totalAmount: totalAmountAgg[0]?.total || 0,
-                pendingAmount: pendingAmountAgg[0]?.total || 0
+            user: {
+                name: req.user.firstName + ' ' + req.user.lastName,
+                _id: req.user._id,
+                role: req.user.role
             },
-            recentExpenses
+            company: {
+                name: company.name,
+                currency: company.currency
+            },
+            stats: {
+                totalEmployees: users.length,
+                pendingExpenses,
+                totalAmount: totalAmount[0]?.total || 0,
+                monthlyAmount: monthlyAmount[0]?.total || 0
+            },
+            users,
+            managers,
+            expenses: recentExpenses,
+            recentExpenses,
+            approvalRules,
+            chartData: {
+                categories,
+                categoryAmounts,
+                months,
+                monthlyAmounts
+            }
         });
+
     } catch (error) {
         console.error('Admin dashboard error:', error);
-        req.flash('error_msg', 'Error loading admin dashboard');
+        req.flash('error_msg', 'Error loading dashboard');
         res.redirect('/auth/login');
     }
 }
