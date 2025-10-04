@@ -1,0 +1,137 @@
+<%- include('../layouts/header') %>
+
+    <div class="container mt-4">
+        <div class="page-header">
+            <h1 class="page-title">User Profile</h1>
+            <% if (user.role==='Admin' || user.id===profileUser.id) { %>
+                <a href="/users/<%= profileUser.id %>/edit" class="btn btn-primary">
+                    <i class="fas fa-pencil-alt me-2"></i> Edit Profile
+                </a>
+                <% } %>
+        </div>
+
+        <div class="row">
+            <!-- Left Column: Main Profile Info -->
+            <div class="col-lg-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <img src="<%= profileUser.profile.avatarUrl || 'https://placehold.co/150x150/6366f1/FFFFFF?text=' + profileUser.firstName.charAt(0) + profileUser.lastName.charAt(0) %>"
+                            alt="User Avatar" class="rounded-circle mb-3" width="120" height="120">
+                        <h3 class="card-title">
+                            <%= profileUser.firstName %>
+                                <%= profileUser.lastName %>
+                        </h3>
+                        <p class="text-muted">
+                            <%= profileUser.position || profileUser.role %>
+                        </p>
+
+                        <% if (profileUser.isActive) { %>
+                            <span class="badge badge-success">Active Account</span>
+                            <% } else { %>
+                                <span class="badge badge-danger">Inactive Account</span>
+                                <% } %>
+
+                                    <hr>
+
+                                    <div class="text-start">
+                                        <p><strong><i class="fas fa-envelope me-2 text-muted"></i>Email:</strong>
+                                            <%= profileUser.email %>
+                                        </p>
+                                        <p><strong><i class="fas fa-phone me-2 text-muted"></i>Phone:</strong>
+                                            <%= profileUser.profile.phone || 'Not Provided' %>
+                                        </p>
+                                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Details and Activity -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Additional Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Role:</strong>
+                                    <%= profileUser.role %>
+                                </p>
+                                <p><strong>Department:</strong>
+                                    <%= profileUser.department || 'N/A' %>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Manager:</strong>
+                                    <%= profileUser.manager ? profileUser.manager.firstName + ' ' +
+                                        profileUser.manager.lastName : 'N/A' %>
+                                </p>
+                                <p><strong>Member Since:</strong>
+                                    <%= moment(profileUser.createdAt).format('MMMM D, YYYY') %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Expense Activity</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-container">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%# This would be populated by data from the controller %>
+                                        <% if (profileUser.recentExpenses && profileUser.recentExpenses.length> 0) { %>
+                                            <% profileUser.recentExpenses.forEach(expense=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= moment(expense.expenseDate).format('MMM D, YYYY') %>
+                                                    </td>
+                                                    <td>
+                                                        <%= expense.description %>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <%= expense.amount.toFixed(2) %>
+                                                            <%= expense.currency %>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <% if (expense.status==='Approved' ) { %>
+                                                            <span class="badge badge-success">Approved</span>
+                                                            <% } else if (expense.status==='Rejected' ) { %>
+                                                                <span class="badge badge-danger">Rejected</span>
+                                                                <% } else { %>
+                                                                    <span class="badge badge-warning">Pending</span>
+                                                                    <% } %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="4">
+                                                                <div class="text-center p-4">
+                                                                    <p class="text-muted mb-0">No recent expense
+                                                                        activity found.</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../layouts/footer') %>

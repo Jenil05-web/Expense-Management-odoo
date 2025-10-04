@@ -1,0 +1,82 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">Edit User</h1>
+        <a href="/users" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to User List
+        </a>
+    </div>
+
+    <div class="card">
+        <form action="/users/<%= editUser.id %>/edit" method="POST">
+            <div class="card-header">
+                <h3 class="card-title">Editing Details for <%= editUser.firstName %> <%= editUser.lastName %></h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control" value="<%= editUser.firstName %>" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control" value="<%= editUser.lastName %>" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" value="<%= editUser.email %>" readonly>
+                    <small class="form-text text-muted">Email address cannot be changed.</small>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" name="role" class="form-control">
+                                <option value="Employee" <%= editUser.role === 'Employee' ? 'selected' : '' %>>Employee</option>
+                                <option value="Manager" <%= editUser.role === 'Manager' ? 'selected' : '' %>>Manager</option>
+                                <option value="Admin" <%= editUser.role === 'Admin' ? 'selected' : '' %>>Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" name="department" class="form-control" value="<%= editUser.department || '' %>">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="position">Position / Title</label>
+                    <input type="text" id="position" name="position" class="form-control" value="<%= editUser.position || '' %>" placeholder="e.g., Sales Executive, Finance Head">
+                </div>
+                 <div class="form-group">
+                    <label>Account Status</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="isActive" name="isActive" <%= editUser.isActive ? 'checked' : '' %>>
+                        <label class="form-check-label" for="isActive">
+                            <%= editUser.isActive ? 'Active' : 'Inactive' %>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <form action="/users/<%= editUser.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i> Delete User
+                    </button>
+                </form>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>

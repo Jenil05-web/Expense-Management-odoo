@@ -1,0 +1,72 @@
+<%- include('../layouts/header') %>
+
+<div class="container mt-4">
+    <div class="page-header">
+        <h1 class="page-title">Create New User</h1>
+        <a href="/users" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Cancel
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">New User Details</h3>
+        </div>
+        <form action="/users/create" method="POST">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Initial Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <small class="form-text text-muted">The user will be prompted to change this on their first login.</small>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" name="role" class="form-control">
+                                <option value="Employee">Employee</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                     <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" name="department" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label for="position">Position / Title</label>
+                    <input type="text" id="position" name="position" class="form-control" placeholder="e.g., Sales Executive, Finance Head">
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i> Create User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
