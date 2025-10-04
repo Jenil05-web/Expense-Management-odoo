@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const managerRoutes = require('./routes/manager');
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const path = require("path");
@@ -120,6 +121,7 @@ app.locals.upload = upload;
 
 // Routes
 app.use("/auth", authRoutes);
+app.use('/manager', managerRoutes);
 app.use("/dashboard", isAuthenticated, dashboardRoutes);
 app.use("/users", isAuthenticated, userRoutes);
 app.use("/expenses", isAuthenticated, expenseRoutes);
