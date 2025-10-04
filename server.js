@@ -17,7 +17,7 @@ const app = express();
 
 // Import configuration
 const connectDB = require('./src/config/database');
-require('./src/config/passport');
+require('./src/config/passport')(passport);  // Pass passport to the function
 
 // Import routes
 const authRoutes = require('./src/routes/auth');
@@ -133,7 +133,7 @@ app.use((req, res, next) => {
 });
 
 // Error handler middleware
-app.use(errorHandler);
+// app.use(errorHandler);
 
 // Server configuration
 const PORT = process.env.PORT || 3000;
