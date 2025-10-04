@@ -1,20 +1,14 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
+const approvalController = require('../controllers/approvalController');
+const { isAdminOrManager } = require('../middleware/roleCheck');
 
-// This is a placeholder for approval-related routes
-
-// @desc    Show expenses pending approval for the current manager/admin
-// @route   GET /approvals
-router.get("/", (req, res) => {
-  res.send(
-    "<h1>Pending Approvals</h1><p>Expenses waiting for your approval will be listed here.</p>"
-  );
-});
-
-// @desc    Show approval rule configuration page (for admins)
-// @route   GET /approvals/rules
-router.get("/rules", (req, res) => {
-  res.send("<h1>Configure Approval Rules</h1>");
-});
+router.get('/pending', isAdminOrManager, approvalController.getPendingApprovals);
+router.get('/:id/review', isAdminOrManager, approvalController.getReviewApproval);
+router.post('/:id/approve', isAdminOrManager, approvalController.approveExpense);
+router.post('/:id/reject', isAdminOrManager, approvalController.rejectExpense);
+router.get('/flow-setup', isAdminOrManager, approvalController.getFlowSetup);
+router.post('/flow-setup', isAdminOrManager, approvalController.postFlowSetup);
+router.get('/rules', isAdminOrManager, approvalController.getRules);
 
 module.exports = router;

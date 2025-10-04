@@ -1,14 +1,12 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
+const companyController = require('../controllers/companyController');
+const { isAdmin } = require('../middleware/roleCheck');
 
-// This is a placeholder for company settings routes
-
-// @desc    Show company settings page
-// @route   GET /company
-router.get("/", (req, res) => {
-  res.send(
-    "<h1>Company Settings</h1><p>Here you can manage company details.</p>"
-  );
-});
+// Company settings routes
+router.get('/settings', isAdmin, companyController.getSettings);
+router.post('/settings', isAdmin, companyController.postSettings);
+router.get('/currency', isAdmin, companyController.getCurrency);
+router.post('/currency', isAdmin, companyController.postCurrency);
 
 module.exports = router;
