@@ -168,6 +168,63 @@
             .logo-container small {
                 color: rgba(255, 255, 255, 0.8);
             }
+
+            .calculator-display {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .calculator-input {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .expense-item {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-left: 4px solid var(--secondary-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .expense-item:hover {
+                background: #e9ecef;
+            }
+
+            .currency-flag {
+                font-size: 1.5rem;
+                margin-right: 10px;
+            }
+
+            .result-box {
+                background: white;
+                border-radius: 10px;
+                padding: 25px;
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .result-box h2 {
+                color: var(--secondary-color);
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .result-box .subtitle {
+                color: #7f8c8d;
+                font-size: 1rem;
+                margin-top: 5px;
+            }
         </style>
     </head>
 
@@ -192,6 +249,9 @@
                 </a>
                 <a class="nav-link" href="#" onclick="showSection('expenses'); return false;">
                     <i class="fas fa-file-invoice-dollar me-2"></i> All Expenses
+                </a>
+                <a class="nav-link" href="#" onclick="showSection('calculator'); return false;">
+                    <i class="fas fa-calculator me-2"></i> Expense Calculator
                 </a>
                 <a class="nav-link" href="#" onclick="showSection('reports'); return false;">
                     <i class="fas fa-chart-bar me-2"></i> Reports
@@ -428,6 +488,114 @@
                 </div>
             </div>
 
+            <!-- Expense Calculator Section -->
+            <div id="calculator" class="section" style="display: none;">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card card-custom">
+                            <div class="card-header">
+                                <i class="fas fa-calculator me-2"></i>Multi-Currency Expense Calculator
+                            </div>
+                            <div class="card-body">
+                                <div class="calculator-input">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <label class="form-label">Amount</label>
+                                            <input type="number" class="form-control form-control-lg" id="calcAmount" 
+                                                placeholder="0.00" step="0.01" min="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Currency</label>
+                                            <select class="form-select form-select-lg" id="calcCurrency">
+                                                <option value="USD">🇺🇸 USD - US Dollar</option>
+                                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                                                <option value="GBP">🇬🇧 GBP - British Pound</option>
+                                                <option value="INR">🇮🇳 INR - Indian Rupee</option>
+                                                <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+                                                <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+                                                <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+                                                <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+                                                <option value="CHF">🇨🇭 CHF - Swiss Franc</option>
+                                                <option value="SGD">🇸🇬 SGD - Singapore Dollar</option>
+                                                <option value="AED">🇦🇪 AED - UAE Dirham</option>
+                                                <option value="MXN">🇲🇽 MXN - Mexican Peso</option>
+                                                <option value="BRL">🇧🇷 BRL - Brazilian Real</option>
+                                                <option value="ZAR">🇿🇦 ZAR - South African Rand</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button class="btn btn-primary w-100 btn-lg" onclick="addExpenseItem()">
+                                                <i class="fas fa-plus me-2"></i>Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="expenseItemsList" class="mt-3">
+                                    <h6 class="text-muted mb-3">Added Expenses</h6>
+                                    <div id="expenseItemsContainer">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x mb-2" style="opacity: 0.3;"></i>
+                                            <p>No expenses added yet</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="calculator-display">
+                            <h5 class="mb-3"><i class="fas fa-coins me-2"></i>Calculation Summary</h5>
+                            <div class="result-box">
+                                <div class="subtitle">Total in USD</div>
+                                <h2 id="totalUSD">$0.00</h2>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between text-white mb-2">
+                                    <span>Total Items:</span>
+                                    <strong id="totalItems">0</strong>
+                                </div>
+                                <div class="d-flex justify-content-between text-white mb-2">
+                                    <span>Currencies Used:</span>
+                                    <strong id="currenciesUsed">0</strong>
+                                </div>
+                            </div>
+                            <button class="btn btn-light w-100 mt-3" onclick="clearAllExpenses()">
+                                <i class="fas fa-trash me-2"></i>Clear All
+                            </button>
+                            <button class="btn btn-outline-light w-100 mt-2" onclick="exportCalculation()">
+                                <i class="fas fa-download me-2"></i>Export Summary
+                            </button>
+                        </div>
+
+                        <div class="card card-custom mt-3">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-exchange-alt me-2"></i>Exchange Rates (to USD)
+                            </div>
+                            <div class="card-body">
+                                <small class="text-muted d-block mb-2">Last updated: <span id="ratesUpdated">Now</span></small>
+                                <div id="exchangeRatesList" style="max-height: 200px; overflow-y: auto;">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>EUR:</span>
+                                        <strong>1.08</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>GBP:</span>
+                                        <strong>1.27</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>INR:</span>
+                                        <strong>0.012</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Reports Section -->
             <div id="reports" class="section" style="display: none;">
                 <div class="row">
@@ -652,6 +820,137 @@
                 ]
             };
 
+            // Exchange rates (to USD)
+            const exchangeRates = {
+                USD: 1.0,
+                EUR: 1.08,
+                GBP: 1.27,
+                INR: 0.012,
+                JPY: 0.0067,
+                CNY: 0.14,
+                AUD: 0.65,
+                CAD: 0.73,
+                CHF: 1.13,
+                SGD: 0.74,
+                AED: 0.27,
+                MXN: 0.058,
+                BRL: 0.20,
+                ZAR: 0.055
+            };
+
+            // Calculator state
+            let calculatorExpenses = [];
+
+            // Add expense item to calculator
+            function addExpenseItem() {
+                const amount = parseFloat(document.getElementById('calcAmount').value);
+                const currency = document.getElementById('calcCurrency').value;
+
+                if (!amount || amount <= 0) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
+
+                const item = {
+                    id: Date.now(),
+                    amount: amount,
+                    currency: currency,
+                    amountInUSD: amount * exchangeRates[currency]
+                };
+
+                calculatorExpenses.push(item);
+                document.getElementById('calcAmount').value = '';
+                updateCalculatorDisplay();
+            }
+
+            // Remove expense item
+            function removeExpenseItem(id) {
+                calculatorExpenses = calculatorExpenses.filter(item => item.id !== id);
+                updateCalculatorDisplay();
+            }
+
+            // Update calculator display
+            function updateCalculatorDisplay() {
+                const container = document.getElementById('expenseItemsContainer');
+                
+                if (calculatorExpenses.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2" style="opacity: 0.3;"></i>
+                            <p>No expenses added yet</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = calculatorExpenses.map(item => `
+                        <div class="expense-item">
+                            <div>
+                                <span class="currency-flag">${getCurrencyFlag(item.currency)}</span>
+                                <strong>${item.currency} ${item.amount.toFixed(2)}</strong>
+                                <small class="text-muted ms-2">≈ USD ${item.amountInUSD.toFixed(2)}</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeExpenseItem(${item.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+
+                // Update totals
+                const total = calculatorExpenses.reduce((sum, item) => sum + item.amountInUSD, 0);
+                const uniqueCurrencies = new Set(calculatorExpenses.map(item => item.currency));
+
+                document.getElementById('totalUSD').textContent = `${total.toFixed(2)}`;
+                document.getElementById('totalItems').textContent = calculatorExpenses.length;
+                document.getElementById('currenciesUsed').textContent = uniqueCurrencies.size;
+            }
+
+            // Get currency flag
+            function getCurrencyFlag(currency) {
+                const flags = {
+                    USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', INR: '🇮🇳',
+                    JPY: '🇯🇵', CNY: '🇨🇳', AUD: '🇦🇺', CAD: '🇨🇦',
+                    CHF: '🇨🇭', SGD: '🇸🇬', AED: '🇦🇪', MXN: '🇲🇽',
+                    BRL: '🇧🇷', ZAR: '🇿🇦'
+                };
+                return flags[currency] || '💰';
+            }
+
+            // Clear all expenses
+            function clearAllExpenses() {
+                if (calculatorExpenses.length === 0) return;
+                if (confirm('Are you sure you want to clear all expenses?')) {
+                    calculatorExpenses = [];
+                    updateCalculatorDisplay();
+                }
+            }
+
+            // Export calculation
+            function exportCalculation() {
+                if (calculatorExpenses.length === 0) {
+                    alert('No expenses to export');
+                    return;
+                }
+
+                const total = calculatorExpenses.reduce((sum, item) => sum + item.amountInUSD, 0);
+                const summary = `Expense Calculation Summary\n` +
+                    `Generated: ${new Date().toLocaleString()}\n\n` +
+                    `Items:\n` +
+                    calculatorExpenses.map((item, i) => 
+                        `${i + 1}. ${item.currency} ${item.amount.toFixed(2)} = USD ${item.amountInUSD.toFixed(2)}`
+                    ).join('\n') +
+                    `\n\nTotal in USD: ${total.toFixed(2)}\n` +
+                    `Total Items: ${calculatorExpenses.length}\n` +
+                    `Currencies Used: ${new Set(calculatorExpenses.map(i => i.currency)).size}`;
+
+                const blob = new Blob([summary], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `expense-calculation-${Date.now()}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
             // Section Navigation
             function showSection(sectionId) {
                 document.querySelectorAll('.section').forEach(section => {
@@ -669,6 +968,7 @@
                 if (sectionId === 'expenses') loadExpenses();
                 if (sectionId === 'approval-rules') loadApprovalRules();
                 if (sectionId === 'reports') initCharts();
+                if (sectionId === 'calculator') updateCalculatorDisplay();
             }
 
             // Modal Functions
@@ -1079,6 +1379,8 @@
                 loadRecentExpenses();
                 populateManagerDropdowns();
                 toggleManagerField();
+                updateCalculatorDisplay();
+                document.getElementById('ratesUpdated').textContent = new Date().toLocaleString();
             });
         </script>
     </body>
