@@ -1,0 +1,65 @@
+<%- include('../layouts/main', { title: 'Pending Approvals' }) %>
+
+    <div class="page-header">
+        <h1 class="page-title">Pending Approvals</h1>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Expenses Awaiting Your Action</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Submission Date</th>
+                            <th>Employee</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%# Example Row 1 - Replace with dynamic data from your controller %>
+                            <tr>
+                                <td>
+                                    <%= moment(new Date()).subtract(1, 'days' ).format('MMM D, YYYY') %>
+                                </td>
+                                <td>John Smith</td>
+                                <td><span class="badge badge-info">Travel</span></td>
+                                <td><strong>$450.00 USD</strong></td>
+                                <td>Client meeting in New York</td>
+                                <td>
+                                    <a href="/approvals/123/review" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-search"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                            <%# Example Row 2 %>
+                                <tr>
+                                    <td>
+                                        <%= moment(new Date()).subtract(2, 'days' ).format('MMM D, YYYY') %>
+                                    </td>
+                                    <td>Jane Doe</td>
+                                    <td><span class="badge badge-warning">Food</span></td>
+                                    <td><strong>$85.50 USD</strong></td>
+                                    <td>Team Lunch</td>
+                                    <td>
+                                        <a href="/approvals/124/review" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-search"></i> Review
+                                        </a>
+                                    </td>
+                                </tr>
+                                <%# You can add an empty state here if there are no pending approvals %>
+                                    <%# e.g. <tr>
+                                        <td colspan="6">
+                                            <div class="empty-state">...</div>
+                                        </td>
+                                        </tr> %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,113 @@
+<%- include('../layouts/main', { title: 'Review Expense' }) %>
+
+    <%# Dummy expense object for structure - replace with real data %>
+        <% const expense={ id: '123' , user: { name: 'John Smith' , department: 'Sales' }, amount: 450.00,
+            currency: 'USD' , category: 'Travel' , expenseDate: new Date(),
+            description: 'Client meeting in New York to discuss Q4 strategy.' , receipts: [{
+            url: 'https://placehold.co/600x400/EEE/31343C?text=Receipt.jpg' }], status: 'PendingApproval' } %>
+
+            <div class="page-header">
+                <h1 class="page-title">Review Expense</h1>
+                <a href="/approvals/pending" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Pending List
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Expense Details Column -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Expense Details</h3>
+                            <span class="badge badge-warning">
+                                <%= expense.status %>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Employee:</strong>
+                                    <p>
+                                        <%= expense.user.name %>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Department:</strong>
+                                    <p>
+                                        <%= expense.user.department %>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Amount:</strong>
+                                    <p class="h4 text-primary">
+                                        <%= expense.amount.toFixed(2) %>
+                                            <%= expense.currency %>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Category:</strong>
+                                    <p>
+                                        <%= expense.category %>
+                                    </p>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <strong>Date of Expense:</strong>
+                                    <p>
+                                        <%= moment(expense.expenseDate).format('MMMM D, YYYY') %>
+                                    </p>
+                                </div>
+                                <div class="col-md-12">
+                                    <strong>Description:</strong>
+                                    <p>
+                                        <%= expense.description %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h4><i class="fas fa-receipt"></i> Attached Receipt</h4>
+                            <% if (expense.receipts && expense.receipts.length> 0) { %>
+                                <a href="<%= expense.receipts[0].url %>" target="_blank">
+                                    <img src="<%= expense.receipts[0].url %>" alt="Receipt"
+                                        class="img-fluid rounded border">
+                                </a>
+                                <% } else { %>
+                                    <p class="text-muted">No receipt attached.</p>
+                                    <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Column -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Take Action</h3>
+                        </div>
+                        <div class="card-body">
+                            <form action="/approvals/<%= expense.id %>/approve" method="POST" class="mb-3">
+                                <div class="form-group">
+                                    <label for="approveComments">Approval Comments (Optional)</label>
+                                    <textarea name="comments" id="approveComments" class="form-control" rows="3"
+                                        placeholder="Looks good..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-check-circle"></i> Approve
+                                </button>
+                            </form>
+                            <hr>
+                            <form action="/approvals/<%= expense.id %>/reject" method="POST">
+                                <div class="form-group">
+                                    <label for="rejectComments">Rejection Reason (Required)</label>
+                                    <textarea name="comments" id="rejectComments" class="form-control" rows="3"
+                                        placeholder="e.g., Missing detailed invoice..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-times-circle"></i> Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
