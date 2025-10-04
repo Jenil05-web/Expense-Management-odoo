@@ -1,0 +1,71 @@
+<%- include('../layouts/main', { title: 'Approval Rules' }) %>
+
+    <div class="page-header">
+        <h1 class="page-title">Conditional Approval Rules</h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRuleModal">
+                <i class="fas fa-plus"></i> Add New Rule
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Configured Rules</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Conditional rules are applied after each step of an approval flow to determine if an
+                expense can be auto-approved or rejected.</p>
+
+            <div class="table-container mt-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Rule Name</th>
+                            <th>Condition</th>
+                            <th>Outcome</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%# Example Row - Replace with dynamic data %>
+                            <tr>
+                                <td><strong>CFO Auto-Approval</strong></td>
+                                <td>If 'CFO' approves</td>
+                                <td><span class="badge badge-success">Auto-Approve</span></td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="#" class="btn btn-sm btn-outline-primary btn-icon" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-danger btn-icon" title="Deactivate">
+                                            <i class="fas fa-toggle-off"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Majority Rules</strong></td>
+                                <td>If 60% of approvers at any level approve</td>
+                                <td><span class="badge badge-success">Auto-Approve</span></td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="#" class="btn btn-sm btn-outline-primary btn-icon" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-danger btn-icon" title="Deactivate">
+                                            <i class="fas fa-toggle-off"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <%# Modal for creating a new rule would go here %>
