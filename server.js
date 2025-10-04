@@ -23,6 +23,7 @@ require("./src/config/passport")(passport);
 // Import routes
 const authRoutes = require("./src/routes/auth");
 const dashboardRoutes = require("./src/routes/dashboard");
+
 const userRoutes = require("./src/routes/users");
 const expenseRoutes = require("./src/routes/expenses");
 const approvalRoutes = require("./src/routes/approvals");

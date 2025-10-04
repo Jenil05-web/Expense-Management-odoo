@@ -141,6 +141,7 @@
                 align-items: center;
                 gap: 10px;
                 margin-bottom: 10px;
+                flex-wrap: wrap;
             }
 
             .approver-step {
@@ -149,14 +150,7 @@
                 border-radius: 8px;
                 padding: 10px 15px;
                 flex: 1;
-            }
-
-            .company-info {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 20px;
-                border-radius: 10px;
-                margin-bottom: 20px;
+                min-width: 150px;
             }
 
             .logo-container {
@@ -187,23 +181,23 @@
             </div>
 
             <nav class="nav flex-column">
-                <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                <a class="nav-link active" href="#" onclick="showSection('dashboard'); return false;">
                     <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('users')">
+                <a class="nav-link" href="#" onclick="showSection('users'); return false;">
                     <i class="fas fa-users me-2"></i> User Management
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('approval-rules')">
+                <a class="nav-link" href="#" onclick="showSection('approval-rules'); return false;">
                     <i class="fas fa-cogs me-2"></i> Approval Rules
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('expenses')">
+                <a class="nav-link" href="#" onclick="showSection('expenses'); return false;">
                     <i class="fas fa-file-invoice-dollar me-2"></i> All Expenses
                 </a>
-                <a class="nav-link" href="#" onclick="showSection('reports')">
+                <a class="nav-link" href="#" onclick="showSection('reports'); return false;">
                     <i class="fas fa-chart-bar me-2"></i> Reports
                 </a>
                 <hr style="border-color: rgba(255,255,255,0.2);">
-                <a class="nav-link" href="/logout">
+                <a class="nav-link" href="#" onclick="alert('Logout functionality'); return false;">
                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                 </a>
             </nav>
@@ -214,23 +208,20 @@
             <!-- Header -->
             <div class="header d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1">Welcome, <%= typeof user !=='undefined' ? user.name : 'Admin' %>
-                    </h2>
+                    <h2 class="mb-1">Welcome, Admin</h2>
                     <p class="text-muted mb-0">
                         <i class="fas fa-building me-2"></i>
-                        <%= typeof company !=='undefined' ? company.name : 'Company Name' %>
-                            <span class="badge bg-secondary ms-2">
-                                <%= typeof company !=='undefined' ? company.currency : 'USD' %>
-                            </span>
+                        Company Name
+                        <span class="badge bg-secondary ms-2">USD</span>
                     </p>
                 </div>
                 <div>
                     <button class="btn btn-outline-primary btn-custom me-2"
-                        onclick="showSection('users'); openModal('addUserModal')">
+                        onclick="showSection('users'); openModal('addUserModal');">
                         <i class="fas fa-user-plus me-2"></i>Add User
                     </button>
                     <button class="btn btn-primary btn-custom"
-                        onclick="showSection('approval-rules'); openModal('addApprovalRuleModal')">
+                        onclick="showSection('approval-rules'); openModal('addApprovalRuleModal');">
                         <i class="fas fa-plus me-2"></i>New Approval Rule
                     </button>
                 </div>
@@ -245,9 +236,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <p class="text-muted mb-1">Total Employees</p>
-                                    <h3 class="mb-0">
-                                        <%= stats.totalEmployees || 0 %>
-                                    </h3>
+                                    <h3 class="mb-0">24</h3>
                                 </div>
                                 <div class="icon text-primary">
                                     <i class="fas fa-users"></i>
@@ -260,9 +249,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <p class="text-muted mb-1">Pending Approvals</p>
-                                    <h3 class="mb-0">
-                                        <%= stats.pendingExpenses || 0 %>
-                                    </h3>
+                                    <h3 class="mb-0">8</h3>
                                 </div>
                                 <div class="icon text-warning">
                                     <i class="fas fa-clock"></i>
@@ -275,10 +262,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <p class="text-muted mb-1">Total Expenses</p>
-                                    <h3 class="mb-0">
-                                        <%= company.currency %>
-                                            <%= stats.totalAmount || 0 %>
-                                    </h3>
+                                    <h3 class="mb-0">$45,320</h3>
                                 </div>
                                 <div class="icon text-success">
                                     <i class="fas fa-money-bill-wave"></i>
@@ -291,10 +275,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <p class="text-muted mb-1">This Month</p>
-                                    <h3 class="mb-0">
-                                        <%= company.currency %>
-                                            <%= stats.monthlyAmount || 0 %>
-                                    </h3>
+                                    <h3 class="mb-0">$12,850</h3>
                                 </div>
                                 <div class="icon text-info">
                                     <i class="fas fa-calendar-alt"></i>
@@ -322,47 +303,10 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <% if(recentExpenses && recentExpenses.length> 0) { %>
-                                        <% recentExpenses.forEach(expense=> { %>
-                                            <tr>
-                                                <td>
-                                                    <%= new Date(expense.date).toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <%= expense.employee.name %>
-                                                </td>
-                                                <td>
-                                                    <%= expense.description %>
-                                                </td>
-                                                <td>
-                                                    <%= company.currency %>
-                                                        <%= expense.amountInCompanyCurrency.toFixed(2) %>
-                                                </td>
-                                                <td>
-                                                    <% if(expense.status==='approved' ) { %>
-                                                        <span class="badge bg-success badge-custom">Approved</span>
-                                                        <% } else if(expense.status==='rejected' ) { %>
-                                                            <span class="badge bg-danger badge-custom">Rejected</span>
-                                                            <% } else { %>
-                                                                <span
-                                                                    class="badge bg-warning badge-custom">Pending</span>
-                                                                <% } %>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewExpense('<%= expense._id %>')">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <tr>
-                                                        <td colspan="6" class="text-center text-muted">No recent
-                                                            expenses</td>
-                                                    </tr>
-                                                    <% } %>
+                                <tbody id="recentExpensesTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Loading...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -392,48 +336,10 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <% if(users && users.length> 0) { %>
-                                        <% users.forEach(u=> { %>
-                                            <tr>
-                                                <td>
-                                                    <%= u.name %>
-                                                </td>
-                                                <td>
-                                                    <%= u.email %>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-<%= u.role === 'admin' ? 'danger' : u.role === 'manager' ? 'primary' : 'secondary' %> badge-custom">
-                                                        <%= u.role.toUpperCase() %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <%= u.manager ? u.manager.name : 'N/A' %>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-success badge-custom">Active</span>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="editUser('<%= u._id %>')">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <% if(u._id !==user._id) { %>
-                                                        <button class="btn btn-sm btn-outline-danger"
-                                                            onclick="deleteUser('<%= u._id %>')">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                        <% } %>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <tr>
-                                                        <td colspan="6" class="text-center text-muted">No users found
-                                                        </td>
-                                                    </tr>
-                                                    <% } %>
+                                <tbody id="usersTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Loading...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -453,94 +359,14 @@
                     <div class="card-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Configure approval workflows for different expense scenarios. You can set sequential
-                            approvers or conditional rules based on percentage or specific approvers.
+                            Configure approval workflows for different expense scenarios.
                         </div>
-
-                        <% if(approvalRules && approvalRules.length> 0) { %>
-                            <% approvalRules.forEach((rule, index)=> { %>
-                                <div class="approval-rule-item">
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <div>
-                                            <h5 class="mb-1">
-                                                <%= rule.name %>
-                                            </h5>
-                                            <p class="text-muted mb-2">
-                                                <%= rule.description || 'No description' %>
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-primary me-2"
-                                                onclick="editApprovalRule('<%= rule._id %>')">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                onclick="deleteApprovalRule('<%= rule._id %>')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <% if(rule.isManagerApprover) { %>
-                                        <div class="mb-2">
-                                            <span class="badge bg-info">Manager Approval Required</span>
-                                        </div>
-                                        <% } %>
-
-                                            <% if(rule.approvers && rule.approvers.length> 0) { %>
-                                                <div class="mb-3">
-                                                    <strong>Sequential Approvers:</strong>
-                                                    <div class="approver-sequence mt-2">
-                                                        <% rule.approvers.forEach((approver, idx)=> { %>
-                                                            <div class="approver-step">
-                                                                <small class="text-muted">Step <%= idx + 1 %></small>
-                                                                <div><strong>
-                                                                        <%= approver.name %>
-                                                                    </strong></div>
-                                                                <small>
-                                                                    <%= approver.role %>
-                                                                </small>
-                                                            </div>
-                                                            <% if(idx < rule.approvers.length - 1) { %>
-                                                                <i class="fas fa-arrow-right text-muted"></i>
-                                                                <% } %>
-                                                                    <% }); %>
-                                                    </div>
-                                                </div>
-                                                <% } %>
-
-                                                    <% if(rule.conditionalRules) { %>
-                                                        <div>
-                                                            <strong>Conditional Rules:</strong>
-                                                            <ul class="mt-2 mb-0">
-                                                                <% if(rule.conditionalRules.percentageRule) { %>
-                                                                    <li>
-                                                                        <strong>Percentage Rule:</strong>
-                                                                        Approve if <%=
-                                                                            rule.conditionalRules.percentageRule %>% of
-                                                                            approvers approve
-                                                                    </li>
-                                                                    <% } %>
-                                                                        <% if(rule.conditionalRules.specificApprover) {
-                                                                            %>
-                                                                            <li>
-                                                                                <strong>Specific Approver:</strong>
-                                                                                Auto-approve if <%=
-                                                                                    rule.conditionalRules.specificApprover.name
-                                                                                    %> approves
-                                                                            </li>
-                                                                            <% } %>
-                                                            </ul>
-                                                        </div>
-                                                        <% } %>
-                                </div>
-                                <% }); %>
-                                    <% } else { %>
-                                        <div class="text-center text-muted py-5">
-                                            <i class="fas fa-cogs fa-3x mb-3" style="opacity: 0.3;"></i>
-                                            <p>No approval rules configured yet. Click "Add Rule" to create one.</p>
-                                        </div>
-                                        <% } %>
+                        <div id="approvalRulesContainer">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-cogs fa-3x mb-3" style="opacity: 0.3;"></i>
+                                <p>Loading approval rules...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -572,8 +398,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" id="searchExpense"
-                                    placeholder="Search by description or employee..." onkeyup="filterExpenses()">
+                                <input type="text" class="form-control" id="searchExpense" placeholder="Search..."
+                                    onkeyup="filterExpenses()">
                             </div>
                         </div>
 
@@ -592,71 +418,9 @@
                                     </tr>
                                 </thead>
                                 <tbody id="expensesTableBody">
-                                    <% if(expenses && expenses.length> 0) { %>
-                                        <% expenses.forEach(expense=> { %>
-                                            <tr data-status="<%= expense.status %>"
-                                                data-category="<%= expense.category %>">
-                                                <td>#<%= expense.expenseId || expense._id.toString().slice(-6) %>
-                                                </td>
-                                                <td>
-                                                    <%= new Date(expense.date).toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <%= expense.employee.name %>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-secondary badge-custom">
-                                                        <%= expense.category %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <%= expense.description %>
-                                                </td>
-                                                <td>
-                                                    <%= expense.currency %>
-                                                        <%= expense.amount.toFixed(2) %>
-                                                            <% if(expense.currency !==company.currency) { %>
-                                                                <br><small class="text-muted">
-                                                                    (<%= company.currency %>
-                                                                        <%= expense.amountInCompanyCurrency.toFixed(2)
-                                                                            %>)
-                                                                </small>
-                                                                <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if(expense.status==='approved' ) { %>
-                                                        <span class="badge bg-success badge-custom">Approved</span>
-                                                        <% } else if(expense.status==='rejected' ) { %>
-                                                            <span class="badge bg-danger badge-custom">Rejected</span>
-                                                            <% } else { %>
-                                                                <span
-                                                                    class="badge bg-warning badge-custom">Pending</span>
-                                                                <% } %>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewExpense('<%= expense._id %>')">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <% if(expense.status==='pending' ) { %>
-                                                        <button class="btn btn-sm btn-outline-danger"
-                                                            onclick="overrideExpense('<%= expense._id %>', 'rejected')">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-outline-success"
-                                                            onclick="overrideExpense('<%= expense._id %>', 'approved')">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                        <% } %>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <tr>
-                                                        <td colspan="8" class="text-center text-muted">No expenses found
-                                                        </td>
-                                                    </tr>
-                                                    <% } %>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Loading...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -755,15 +519,8 @@
                             </div>
                             <div class="mb-3" id="managerField">
                                 <label class="form-label">Manager</label>
-                                <select class="form-select" name="manager">
+                                <select class="form-select" name="manager" id="managerSelect">
                                     <option value="">Select Manager</option>
-                                    <% if(managers && managers.length> 0) { %>
-                                        <% managers.forEach(m=> { %>
-                                            <option value="<%= m._id %>">
-                                                <%= m.name %>
-                                            </option>
-                                            <% }); %>
-                                                <% } %>
                                 </select>
                             </div>
                         </div>
@@ -803,8 +560,7 @@
                                         id="isManagerApprover">
                                     <label class="form-check-label" for="isManagerApprover">
                                         <strong>Require Manager Approval First</strong>
-                                        <small class="d-block text-muted">If checked, expense must be approved by
-                                            employee's manager before other approvers</small>
+                                        <small class="d-block text-muted">Employee's manager must approve first</small>
                                     </label>
                                 </div>
                             </div>
@@ -818,15 +574,6 @@
                                         <span class="input-group-text">Step 1</span>
                                         <select class="form-select" name="approvers[]">
                                             <option value="">Select Approver</option>
-                                            <% if(users && users.length> 0) { %>
-                                                <% users.forEach(u=> { %>
-                                                    <% if(u.role==='manager' || u.role==='admin' ) { %>
-                                                        <option value="<%= u._id %>">
-                                                            <%= u.name %> (<%= u.role %>)
-                                                        </option>
-                                                        <% } %>
-                                                            <% }); %>
-                                                                <% } %>
                                         </select>
                                     </div>
                                 </div>
@@ -846,24 +593,14 @@
                                             max="100" placeholder="60">
                                         <span class="input-group-text">%</span>
                                     </div>
-                                    <small class="text-muted">If this % of approvers approve, auto-approve
-                                        expense</small>
+                                    <small class="text-muted">Auto-approve if this % of approvers approve</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Specific Approver</label>
                                     <select class="form-select mb-3" name="specificApprover">
                                         <option value="">Select Specific Approver</option>
-                                        <% if(users && users.length> 0) { %>
-                                            <% users.forEach(u=> { %>
-                                                <% if(u.role==='manager' || u.role==='admin' ) { %>
-                                                    <option value="<%= u._id %>">
-                                                        <%= u.name %> (<%= u.role %>)
-                                                    </option>
-                                                    <% } %>
-                                                        <% }); %>
-                                                            <% } %>
                                     </select>
-                                    <small class="text-muted">If this approver approves, auto-approve expense</small>
+                                    <small class="text-muted">Auto-approve if this approver approves</small>
                                 </div>
                             </div>
                         </div>
@@ -885,7 +622,6 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body" id="expenseDetailsContent">
-                        <!-- Content will be loaded dynamically -->
                         <div class="text-center py-5">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -896,60 +632,26 @@
             </div>
         </div>
 
-        <!-- Edit User Modal -->
-        <div class="modal fade" id="editUserModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form id="editUserForm" onsubmit="submitEditUser(event)">
-                        <input type="hidden" name="userId" id="editUserId">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" id="editUserName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" name="email" id="editUserEmail" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Role</label>
-                                <select class="form-select" name="role" id="editUserRole" required>
-                                    <option value="employee">Employee</option>
-                                    <option value="manager">Manager</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Manager</label>
-                                <select class="form-select" name="manager" id="editUserManager">
-                                    <option value="">No Manager</option>
-                                    <% if(managers && managers.length> 0) { %>
-                                        <% managers.forEach(m=> { %>
-                                            <option value="<%= m._id %>">
-                                                <%= m.name %>
-                                            </option>
-                                            <% }); %>
-                                                <% } %>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Update User</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <script>
+            // Mock data for demonstration
+            const mockData = {
+                users: [
+                    {_id: '1', name: 'John Doe', email: 'john@example.com', role: 'employee', manager: {name: 'Jane Smith'}},
+                    {_id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'manager', manager: null},
+                    {_id: '3', name: 'Bob Wilson', email: 'bob@example.com', role: 'admin', manager: null}
+                ],
+                expenses: [
+                    {_id: '1', expenseId: 'EXP001', date: new Date(), employee: {name: 'John Doe'}, category: 'food', description: 'Team lunch', amount: 150, currency: 'USD', amountInCompanyCurrency: 150, status: 'pending'},
+                    {_id: '2', expenseId: 'EXP002', date: new Date(), employee: {name: 'Jane Smith'}, category: 'travel', description: 'Flight to NYC', amount: 450, currency: 'USD', amountInCompanyCurrency: 450, status: 'approved'}
+                ],
+                approvalRules: [
+                    {_id: '1', name: 'Standard Approval', description: 'Default approval workflow', isManagerApprover: true, approvers: [{name: 'Jane Smith', role: 'manager'}], conditionalRules: {percentageRule: 60}}
+                ]
+            };
+
             // Section Navigation
             function showSection(sectionId) {
                 document.querySelectorAll('.section').forEach(section => {
@@ -961,6 +663,12 @@
                     link.classList.remove('active');
                 });
                 event.target.closest('.nav-link').classList.add('active');
+
+                // Load section data
+                if (sectionId === 'users') loadUsers();
+                if (sectionId === 'expenses') loadExpenses();
+                if (sectionId === 'approval-rules') loadApprovalRules();
+                if (sectionId === 'reports') initCharts();
             }
 
             // Modal Functions
@@ -973,11 +681,7 @@
             function toggleManagerField() {
                 const role = document.getElementById('userRole').value;
                 const managerField = document.getElementById('managerField');
-                if (role === 'employee') {
-                    managerField.style.display = 'block';
-                } else {
-                    managerField.style.display = 'none';
-                }
+                managerField.style.display = role === 'employee' ? 'block' : 'none';
             }
 
             // Add Approver Step
@@ -992,20 +696,21 @@
                     <span class="input-group-text">Step ${approverStepCount}</span>
                     <select class="form-select" name="approvers[]">
                         <option value="">Select Approver</option>
-                        <% if(users && users.length > 0) { %>
-                            <% users.forEach(u => { %>
-                                <% if(u.role === 'manager' || u.role === 'admin') { %>
-                                    <option value="<%= u._id %>"><%= u.name %> (<%= u.role %>)</option>
-                                <% } %>
-                            <% }); %>
-                        <% } %>
+                        ${mockData.users.filter(u => u.role === 'manager' || u.role === 'admin').map(u =>
+                    `<option value="${u._id}">${u.name} (${u.role})</option>`
+                ).join('')}
                     </select>
-                    <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.parentElement.remove(); renumberSteps();">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeApproverStep(this)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             `;
                 container.appendChild(newStep);
+            }
+
+            function removeApproverStep(btn) {
+                btn.closest('.approver-item').remove();
+                renumberSteps();
             }
 
             function renumberSteps() {
@@ -1016,31 +721,162 @@
                 approverStepCount = steps.length;
             }
 
+            // Load Users
+            function loadUsers() {
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = mockData.users.map(u => `
+                <tr>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>
+                        <span class="badge bg-${u.role === 'admin' ? 'danger' : u.role === 'manager' ? 'primary' : 'secondary'} badge-custom">
+                            ${u.role.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${u.manager ? u.manager.name : 'N/A'}</td>
+                    <td><span class="badge bg-success badge-custom">Active</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editUser('${u._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            // Load Expenses
+            function loadExpenses() {
+                const tbody = document.getElementById('expensesTableBody');
+                tbody.innerHTML = mockData.expenses.map(exp => `
+                <tr data-status="${exp.status}" data-category="${exp.category}">
+                    <td>#${exp.expenseId}</td>
+                    <td>${new Date(exp.date).toLocaleDateString()}</td>
+                    <td>${exp.employee.name}</td>
+                    <td><span class="badge bg-secondary badge-custom">${exp.category}</span></td>
+                    <td>${exp.description}</td>
+                    <td>${exp.currency} ${exp.amount.toFixed(2)}</td>
+                    <td>
+                        <span class="badge bg-${exp.status === 'approved' ? 'success' : exp.status === 'rejected' ? 'danger' : 'warning'} badge-custom">
+                            ${exp.status.charAt(0).toUpperCase() + exp.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewExpense('${exp._id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${exp.status === 'pending' ? `
+                            <button class="btn btn-sm btn-outline-danger" onclick="overrideExpense('${exp._id}', 'rejected')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="overrideExpense('${exp._id}', 'approved')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+            }
+
+            // Load Approval Rules
+            function loadApprovalRules() {
+                const container = document.getElementById('approvalRulesContainer');
+                if (mockData.approvalRules.length === 0) {
+                    container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-cogs fa-3x mb-3" style="opacity: 0.3;"></i>
+                        <p>No approval rules configured yet. Click "Add Rule" to create one.</p>
+                    </div>
+                `;
+                    return;
+                }
+
+                container.innerHTML = mockData.approvalRules.map(rule => `
+                <div class="approval-rule-item">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">${rule.name}</h5>
+                            <p class="text-muted mb-2">${rule.description || 'No description'}</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="editApprovalRule('${rule._id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteApprovalRule('${rule._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${rule.isManagerApprover ? '<div class="mb-2"><span class="badge bg-info">Manager Approval Required</span></div>' : ''}
+                    ${rule.approvers && rule.approvers.length > 0 ? `
+                        <div class="mb-3">
+                            <strong>Sequential Approvers:</strong>
+                            <div class="approver-sequence mt-2">
+                                ${rule.approvers.map((approver, idx) => `
+                                    <div class="approver-step">
+                                        <small class="text-muted">Step ${idx + 1}</small>
+                                        <div><strong>${approver.name}</strong></div>
+                                        <small>${approver.role}</small>
+                                    </div>
+                                    ${idx < rule.approvers.length - 1 ? '<i class="fas fa-arrow-right text-muted"></i>' : ''}
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${rule.conditionalRules && (rule.conditionalRules.percentageRule || rule.conditionalRules.specificApprover) ? `
+                        <div>
+                            <strong>Conditional Rules:</strong>
+                            <ul class="mt-2 mb-0">
+                                ${rule.conditionalRules.percentageRule ? `<li><strong>Percentage Rule:</strong> Approve if ${rule.conditionalRules.percentageRule}% of approvers approve</li>` : ''}
+                                ${rule.conditionalRules.specificApprover ? `<li><strong>Specific Approver:</strong> Auto-approve if ${rule.conditionalRules.specificApprover.name} approves</li>` : ''}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            }
+
+            // Load Recent Expenses (Dashboard)
+            function loadRecentExpenses() {
+                const tbody = document.getElementById('recentExpensesTable');
+                const recent = mockData.expenses.slice(0, 5);
+                if (recent.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No recent expenses</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = recent.map(exp => `
+                <tr>
+                    <td>${new Date(exp.date).toLocaleDateString()}</td>
+                    <td>${exp.employee.name}</td>
+                    <td>${exp.description}</td>
+                    <td>${exp.currency} ${exp.amountInCompanyCurrency.toFixed(2)}</td>
+                    <td>
+                        <span class="badge bg-${exp.status === 'approved' ? 'success' : exp.status === 'rejected' ? 'danger' : 'warning'} badge-custom">
+                            ${exp.status.charAt(0).toUpperCase() + exp.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewExpense('${exp._id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            }
+
             // Submit Add User
             async function submitAddUser(event) {
                 event.preventDefault();
                 const formData = new FormData(event.target);
                 const data = Object.fromEntries(formData);
 
-                try {
-                    const response = await fetch('/admin/users', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (response.ok) {
-                        alert('User added successfully!');
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || 'Failed to add user'));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+                // Mock implementation
+                console.log('Adding user:', data);
+                alert('User added successfully! (Mock implementation)');
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                event.target.reset();
             }
 
             // Submit Approval Rule
@@ -1063,225 +899,76 @@
                     data.conditionalRules.specificApprover = formData.get('specificApprover');
                 }
 
-                try {
-                    const response = await fetch('/admin/approval-rules', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (response.ok) {
-                        alert('Approval rule created successfully!');
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || 'Failed to create approval rule'));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+                console.log('Creating approval rule:', data);
+                alert('Approval rule created successfully! (Mock implementation)');
+                bootstrap.Modal.getInstance(document.getElementById('addApprovalRuleModal')).hide();
+                event.target.reset();
             }
 
             // View Expense
-            async function viewExpense(expenseId) {
+            function viewExpense(expenseId) {
                 const modal = new bootstrap.Modal(document.getElementById('viewExpenseModal'));
                 modal.show();
 
-                try {
-                    const response = await fetch(`/admin/expenses/${expenseId}`);
-                    const expense = await response.json();
+                const expense = mockData.expenses.find(e => e._id === expenseId);
+                if (!expense) {
+                    document.getElementById('expenseDetailsContent').innerHTML = '<div class="alert alert-danger">Expense not found</div>';
+                    return;
+                }
 
-                    document.getElementById('expenseDetailsContent').innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Basic Information</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>Employee:</strong></td>
-                                    <td>${expense.employee.name}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Date:</strong></td>
-                                    <td>${new Date(expense.date).toLocaleDateString()}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Category:</strong></td>
-                                    <td><span class="badge bg-secondary">${expense.category}</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Description:</strong></td>
-                                    <td>${expense.description}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Financial Details</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>Amount:</strong></td>
-                                    <td>${expense.currency} ${expense.amount.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>In Company Currency:</strong></td>
-                                    <td><%= company.currency %> ${expense.amountInCompanyCurrency.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Status:</strong></td>
-                                    <td>
-                                        ${expense.status === 'approved' ? '<span class="badge bg-success">Approved</span>' :
-                            expense.status === 'rejected' ? '<span class="badge bg-danger">Rejected</span>' :
-                                '<span class="badge bg-warning">Pending</span>'}
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                document.getElementById('expenseDetailsContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Basic Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Employee:</strong></td><td>${expense.employee.name}</td></tr>
+                            <tr><td><strong>Date:</strong></td><td>${new Date(expense.date).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Category:</strong></td><td><span class="badge bg-secondary">${expense.category}</span></td></tr>
+                            <tr><td><strong>Description:</strong></td><td>${expense.description}</td></tr>
+                        </table>
                     </div>
-                    ${expense.receipt ? `
-                        <div class="mt-3">
-                            <h6>Receipt</h6>
-                            <img src="${expense.receipt}" class="img-fluid" style="max-height: 400px;">
-                        </div>
-                    ` : ''}
-                    ${expense.approvalHistory && expense.approvalHistory.length > 0 ? `
-                        <div class="mt-3">
-                            <h6>Approval History</h6>
-                            <div class="timeline">
-                                ${expense.approvalHistory.map(h => `
-                                    <div class="mb-2">
-                                        <strong>${h.approver.name}</strong> 
-                                        ${h.status === 'approved' ? '<span class="badge bg-success">Approved</span>' : '<span class="badge bg-danger">Rejected</span>'}
-                                        <br>
-                                        <small class="text-muted">${new Date(h.date).toLocaleString()}</small>
-                                        ${h.comments ? `<br><em>"${h.comments}"</em>` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                `;
-                } catch (error) {
-                    document.getElementById('expenseDetailsContent').innerHTML = `
-                    <div class="alert alert-danger">Error loading expense details: ${error.message}</div>
-                `;
-                }
+                    <div class="col-md-6">
+                        <h6>Financial Details</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Amount:</strong></td><td>${expense.currency} ${expense.amount.toFixed(2)}</td></tr>
+                            <tr><td><strong>In Company Currency:</strong></td><td>USD ${expense.amountInCompanyCurrency.toFixed(2)}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td>
+                                <span class="badge bg-${expense.status === 'approved' ? 'success' : expense.status === 'rejected' ? 'danger' : 'warning'}">
+                                    ${expense.status.charAt(0).toUpperCase() + expense.status.slice(1)}
+                                </span>
+                            </td></tr>
+                        </table>
+                    </div>
+                </div>
+            `;
             }
 
-            // Edit User
-            async function editUser(userId) {
-                try {
-                    const response = await fetch(`/admin/users/${userId}`);
-                    const user = await response.json();
-
-                    document.getElementById('editUserId').value = user._id;
-                    document.getElementById('editUserName').value = user.name;
-                    document.getElementById('editUserEmail').value = user.email;
-                    document.getElementById('editUserRole').value = user.role;
-                    document.getElementById('editUserManager').value = user.manager || '';
-
-                    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-                    modal.show();
-                } catch (error) {
-                    alert('Error loading user data: ' + error.message);
-                }
+            // Edit, Delete User
+            function editUser(userId) {
+                alert('Edit user functionality (Mock implementation)');
             }
 
-            // Submit Edit User
-            async function submitEditUser(event) {
-                event.preventDefault();
-                const formData = new FormData(event.target);
-                const userId = formData.get('userId');
-                const data = Object.fromEntries(formData);
-                delete data.userId;
-
-                try {
-                    const response = await fetch(`/admin/users/${userId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (response.ok) {
-                        alert('User updated successfully!');
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || 'Failed to update user'));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
-            }
-
-            // Delete User
-            async function deleteUser(userId) {
+            function deleteUser(userId) {
                 if (!confirm('Are you sure you want to delete this user?')) return;
-
-                try {
-                    const response = await fetch(`/admin/users/${userId}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (response.ok) {
-                        alert('User deleted successfully!');
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || 'Failed to delete user'));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+                alert('User deleted successfully! (Mock implementation)');
             }
 
             // Delete Approval Rule
-            async function deleteApprovalRule(ruleId) {
+            function deleteApprovalRule(ruleId) {
                 if (!confirm('Are you sure you want to delete this approval rule?')) return;
+                alert('Approval rule deleted successfully! (Mock implementation)');
+            }
 
-                try {
-                    const response = await fetch(`/admin/approval-rules/${ruleId}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (response.ok) {
-                        alert('Approval rule deleted successfully!');
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || 'Failed to delete approval rule'));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+            // Edit Approval Rule
+            function editApprovalRule(ruleId) {
+                alert('Edit approval rule functionality (Mock implementation)');
             }
 
             // Override Expense
-            async function overrideExpense(expenseId, status) {
+            function overrideExpense(expenseId, status) {
                 const action = status === 'approved' ? 'approve' : 'reject';
-                if (!confirm(`Are you sure you want to ${action} this expense? This will override the normal approval flow.`)) return;
-
-                try {
-                    const response = await fetch(`/admin/expenses/${expenseId}/override`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({status})
-                    });
-
-                    if (response.ok) {
-                        alert(`Expense ${status} successfully!`);
-                        location.reload();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + (error.message || `Failed to ${action} expense`));
-                    }
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+                if (!confirm(`Are you sure you want to ${action} this expense?`)) return;
+                alert(`Expense ${status} successfully! (Mock implementation)`);
             }
 
             // Filter Expenses
@@ -1298,7 +985,6 @@
                     const text = row.textContent.toLowerCase();
 
                     let show = true;
-
                     if (statusFilter && status !== statusFilter) show = false;
                     if (categoryFilter && category !== categoryFilter) show = false;
                     if (searchText && !text.includes(searchText)) show = false;
@@ -1317,35 +1003,30 @@
                     return;
                 }
 
-                window.location.href = `/admin/reports/export?format=${format}&startDate=${startDate}&endDate=${endDate}`;
+                alert(`Exporting report as ${format.toUpperCase()}... (Mock implementation)`);
             }
 
             // Initialize Charts
-            window.addEventListener('DOMContentLoaded', () => {
+            let categoryChart = null;
+            let trendChart = null;
+
+            function initCharts() {
                 // Category Chart
                 const categoryCtx = document.getElementById('categoryChart');
-                if (categoryCtx) {
-                    new Chart(categoryCtx, {
+                if (categoryCtx && !categoryChart) {
+                    categoryChart = new Chart(categoryCtx, {
                         type: 'doughnut',
                         data: {
-                            labels: <%= JSON.stringify(chartData?.categories || ['Food', 'Travel', 'Supplies']) %>,
+                            labels: ['Food', 'Travel', 'Accommodation', 'Supplies', 'Other'],
                             datasets: [{
-                                data: <%= JSON.stringify(chartData?.categoryAmounts || [5000, 3000, 2000]) %>,
-                                backgroundColor: [
-                                    '#3498db',
-                                    '#2ecc71',
-                                    '#f39c12',
-                                    '#e74c3c',
-                                    '#9b59b6'
-                                ]
+                                data: [5000, 12000, 8000, 3000, 2000],
+                                backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6']
                             }]
                         },
                         options: {
                             responsive: true,
                             plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
+                                legend: {position: 'bottom'}
                             }
                         }
                     });
@@ -1353,14 +1034,14 @@
 
                 // Trend Chart
                 const trendCtx = document.getElementById('trendChart');
-                if (trendCtx) {
-                    new Chart(trendCtx, {
+                if (trendCtx && !trendChart) {
+                    trendChart = new Chart(trendCtx, {
                         type: 'line',
                         data: {
-                            labels: <%= JSON.stringify(chartData?.months || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) %>,
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                             datasets: [{
                                 label: 'Expenses',
-                                data: <%= JSON.stringify(chartData?.monthlyAmounts || [12000, 15000, 13000, 18000, 16000, 20000]) %>,
+                                data: [12000, 15000, 13000, 18000, 16000, 20000],
                                 borderColor: '#3498db',
                                 backgroundColor: 'rgba(52, 152, 219, 0.1)',
                                 tension: 0.4,
@@ -1369,19 +1050,35 @@
                         },
                         options: {
                             responsive: true,
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
+                            plugins: {legend: {display: false}},
+                            scales: {y: {beginAtZero: true}}
                         }
                     });
                 }
+            }
+
+            // Populate dropdowns with managers
+            function populateManagerDropdowns() {
+                const managers = mockData.users.filter(u => u.role === 'manager' || u.role === 'admin');
+                const selects = ['managerSelect', 'specificApprover'].concat(
+                    Array.from(document.querySelectorAll('[name="approvers[]"]')).map((_, i) => `approvers[${i}]`)
+                );
+
+                managers.forEach(manager => {
+                    document.querySelectorAll('#managerSelect, select[name="specificApprover"], select[name="approvers[]"]').forEach(select => {
+                        if (!Array.from(select.options).some(opt => opt.value === manager._id)) {
+                            const option = new Option(`${manager.name} (${manager.role})`, manager._id);
+                            select.add(option);
+                        }
+                    });
+                });
+            }
+
+            // Initialize on page load
+            window.addEventListener('DOMContentLoaded', () => {
+                loadRecentExpenses();
+                populateManagerDropdowns();
+                toggleManagerField();
             });
         </script>
     </body>
