@@ -691,3 +691,18 @@ a:hover {
         padding: 20px 15px;
     }
 }
+/* Example: make cards more vibrant */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.sidebar-menu-link.active {
+    background-color: #007bff;
+    color: #fff !important;
+}

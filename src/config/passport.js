@@ -12,14 +12,21 @@ module.exports = function (passport) {
           return done(null, false, { message: "Invalid email or password" });
         }
 
-        // Match password
+        // Make sure user has a password saved
+        if (!user.password) {
+          return done(null, false, { message: "User has no password set" });
+        }
+
+        // Compare passwords safely
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
           return done(null, false, { message: "Invalid email or password" });
         }
 
+        // Success
         return done(null, user);
       } catch (err) {
+        console.error(err);
         return done(err);
       }
     })

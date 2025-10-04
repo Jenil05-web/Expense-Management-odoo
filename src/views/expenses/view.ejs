@@ -146,7 +146,7 @@
                                 <% expense.approvals.forEach(approval=> { %>
                                     <div class="timeline-item">
                                         <div class="timeline-marker"
-                                            style="border-color: <%= approval.action === 'Approved' ? 'var(--success-color)' : 'var(--danger-color)' %>;">
+                                            ? '#28a745' : '#dc3545' %>;">
                                         </div>
                                         <div class="timeline-content">
                                             <div class="timeline-header">

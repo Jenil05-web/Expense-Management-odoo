@@ -1,119 +1,101 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const authController = require("../controllers/authController");
-const { isNotAuthenticated } = require("../middleware/auth");
+const bcrypt = require("bcryptjs");
 
-// @desc    Show login page
-// @route   GET /auth/login
-router.get("/login", isNotAuthenticated, authController.getLogin);
-const User = require('../models/User');
-const Company = require('../models/Company');
-const passport = require('passport');
-const bcrypt = require('bcryptjs');
+const User = require("../models/User");
+const Company = require("../models/Company");
+const { isAuthenticated, isNotAuthenticated } = require("../middleware/auth");
 
-// GET signup page
-router.get('/signup', (req, res) => {
-  res.render('auth/signup', { error: null, success: null });
+// =====================
+// GET Signup page
+// =====================
+router.get("/signup", isNotAuthenticated, (req, res) => {
+  res.render("auth/signup", { error: null, success: null });
 });
 
-// POST signup
-router.post('/signup', async (req, res) => {
+// =====================
+// POST Signup
+// =====================
+router.post("/signup", isNotAuthenticated, async (req, res) => {
   try {
     const { name, email, password, confirmPassword, country, currency } = req.body;
 
-    // Basic password match check
+    // Password match check
     if (password !== confirmPassword) {
-      return res.render('auth/signup', { error: 'Passwords do not match', success: null });
+      return res.render("auth/signup", { error: "Passwords do not match", success: null });
     }
 
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.render('auth/signup', { error: 'Email already registered', success: null });
+      return res.render("auth/signup", { error: "Email already registered", success: null });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 1. Create the admin user
+    // Create user (admin role)
     const user = new User({
       name,
       email,
       password: hashedPassword,
-      role: 'admin' // make first user admin
+      role: "admin"
     });
-
     await user.save();
 
-    // 2. Create company linked to this admin user
+    // Create company linked to admin
     const company = new Company({
       name: `${name}'s Company`,
-      admin: user._id,       // required by schema
-      country: country || 'India',  // fallback if country missing
-      currency: currency || 'INR'   // fallback if currency missing
+      admin: user._id,
+      country: country || "India",
+      currency: currency || "INR"
     });
-
     await company.save();
 
-    // 3. Link user to company
+    // Link user to company
     user.company = company._id;
     await user.save();
 
-    // 4. Auto-login the user
-    req.login(user, function(err) {
+    // Auto-login
+    req.login(user, (err) => {
       if (err) throw err;
-      return res.redirect('/dashboard');
+      return res.redirect("/dashboard");
     });
 
   } catch (err) {
-    console.error('Signup error:', err);
-    return res.render('auth/signup', { error: 'Signup failed. Please try again.', success: null });
+    console.error("Signup error:", err);
+    return res.render("auth/signup", { error: "Signup failed. Please try again.", success: null });
   }
 });
 
-// GET login page
-router.get('/login', (req, res) => {
-  res.render('auth/login', { error: null, success: null });
+// =====================
+// GET Login page
+// =====================
+router.get("/login", isNotAuthenticated, (req, res) => {
+  res.render("auth/login", { error: null, success: null });
 });
 
-// @desc    Authenticate user
-// @route   POST /auth/login
-router.post(
-  "/login",
-  isNotAuthenticated,
+// =====================
+// POST Login
+// =====================
+router.post("/login", isNotAuthenticated, (req, res, next) => {
   passport.authenticate("local", {
     successRedirect: "/dashboard",
     failureRedirect: "/auth/login",
     failureFlash: true,
-  })
-);
+  })(req, res, next);
+});
 
-// @desc    Show Signup page
-// @route   GET /auth/signup
-router.get("/signup", isNotAuthenticated, authController.getSignup);
-
-// @desc    Process registration form
-// @route   POST /auth/signup
-router.post("/signup", isNotAuthenticated, authController.postSignup);
-
-// @desc    Logout user
-// @route   GET /auth/logout
-router.get("/logout", (req, res, next) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
+// =====================
+// Logout
+// =====================
+router.get("/logout", isAuthenticated, (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
     req.flash("success_msg", "You are logged out");
     res.redirect("/auth/login");
   });
-// POST login
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', {
-    successRedirect: '/dashboard',
-    failureRedirect: '/auth/login',
-    failureFlash: true
-  })(req, res, next);
 });
 
 module.exports = router;
